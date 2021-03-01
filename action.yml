@@ -1,0 +1,21 @@
+---
+name: 'Setup PDM'
+description: 'Set up a specific version of PDM and uses a given Python version to work on'
+author: 'Frost Ming'
+inputs:
+  python-version:
+    description: "Version range or exact version of a Python version to use, using SemVer's version range syntax."
+    default: '3.x'
+  architecture:
+    description: 'The target architecture (x86, x64) of the Python interpreter.'
+  token:
+    description: Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
+    default: ${{ github.token }}
+  version:
+    description: The version of PDM to install.
+runs:
+  using: 'node12'
+  main: 'index.js'
+branding:
+  icon: 'code'
+  color: 'green'

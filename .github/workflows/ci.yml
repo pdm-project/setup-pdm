@@ -1,0 +1,14 @@
+on: [push]
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    name: Test the action
+    steps:
+    - name: Setup PDM
+      uses: ./
+      with:
+        python-version: 3.6
+    # Use the output from the `hello` step
+    - name: Get the project info
+      run: pdm info
