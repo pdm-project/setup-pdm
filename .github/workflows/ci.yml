@@ -6,10 +6,17 @@ jobs:
     name: Test the action
     steps:
     - uses: actions/checkout@v2
+    - name: Set Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: npm install
+      run: npm install
+
     - name: Setup PDM
       uses: ./
       with:
         python-version: 3.6
-    # Use the output from the `hello` step
+
     - name: Get the project info
       run: pdm info
