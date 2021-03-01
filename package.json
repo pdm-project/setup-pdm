@@ -2,15 +2,14 @@
   "name": "pdm-action",
   "version": "1.0.0",
   "description": "The GitHub Action for using pdm as the package manager",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pdm-project/pdm-action.git"
   },
-
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
