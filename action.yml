@@ -13,6 +13,9 @@ inputs:
     default: ${{ github.token }}
   version:
     description: The version of PDM to install.
+  prerelease:
+    description: Allow prerelease versions to be installed
+    default: false
 runs:
   using: "node12"
   main: "dist/setup-pdm.js"

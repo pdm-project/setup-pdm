@@ -188,13 +188,13 @@ var require_core = __commonJS((exports2) => {
   var file_command_1 = require_file_command();
   var utils_1 = require_utils();
   var os3 = __importStar(require("os"));
-  var path4 = __importStar(require("path"));
+  var path5 = __importStar(require("path"));
   var ExitCode;
   (function(ExitCode2) {
     ExitCode2[ExitCode2["Success"] = 0] = "Success";
     ExitCode2[ExitCode2["Failure"] = 1] = "Failure";
   })(ExitCode = exports2.ExitCode || (exports2.ExitCode = {}));
-  function exportVariable2(name, val) {
+  function exportVariable3(name, val) {
     const convertedVal = utils_1.toCommandValue(val);
     process.env[name] = convertedVal;
     const filePath = process.env["GITHUB_ENV"] || "";
@@ -206,7 +206,7 @@ var require_core = __commonJS((exports2) => {
       command_1.issueCommand("set-env", {name}, convertedVal);
     }
   }
-  exports2.exportVariable = exportVariable2;
+  exports2.exportVariable = exportVariable3;
   function setSecret(secret) {
     command_1.issueCommand("add-mask", {}, secret);
   }
@@ -218,7 +218,7 @@ var require_core = __commonJS((exports2) => {
     } else {
       command_1.issueCommand("add-path", {}, inputPath);
     }
-    process.env["PATH"] = `${inputPath}${path4.delimiter}${process.env["PATH"]}`;
+    process.env["PATH"] = `${inputPath}${path5.delimiter}${process.env["PATH"]}`;
   }
   exports2.addPath = addPath2;
   function getInput3(name, options) {
@@ -327,7 +327,7 @@ var require_io_util = __commonJS((exports2) => {
   Object.defineProperty(exports2, "__esModule", {value: true});
   var assert_1 = require("assert");
   var fs2 = require("fs");
-  var path4 = require("path");
+  var path5 = require("path");
   _a = fs2.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
   exports2.IS_WINDOWS = process.platform === "win32";
   function exists(fsPath) {
@@ -365,7 +365,7 @@ var require_io_util = __commonJS((exports2) => {
   function mkdirP(fsPath, maxDepth = 1e3, depth = 1) {
     return __awaiter(this, void 0, void 0, function* () {
       assert_1.ok(fsPath, "a path argument must be provided");
-      fsPath = path4.resolve(fsPath);
+      fsPath = path5.resolve(fsPath);
       if (depth >= maxDepth)
         return exports2.mkdir(fsPath);
       try {
@@ -374,7 +374,7 @@ var require_io_util = __commonJS((exports2) => {
       } catch (err) {
         switch (err.code) {
           case "ENOENT": {
-            yield mkdirP(path4.dirname(fsPath), maxDepth, depth + 1);
+            yield mkdirP(path5.dirname(fsPath), maxDepth, depth + 1);
             yield exports2.mkdir(fsPath);
             return;
           }
@@ -405,7 +405,7 @@ var require_io_util = __commonJS((exports2) => {
       }
       if (stats && stats.isFile()) {
         if (exports2.IS_WINDOWS) {
-          const upperExt = path4.extname(filePath).toUpperCase();
+          const upperExt = path5.extname(filePath).toUpperCase();
           if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
             return filePath;
           }
@@ -429,11 +429,11 @@ var require_io_util = __commonJS((exports2) => {
         if (stats && stats.isFile()) {
           if (exports2.IS_WINDOWS) {
             try {
-              const directory = path4.dirname(filePath);
-              const upperName = path4.basename(filePath).toUpperCase();
+              const directory = path5.dirname(filePath);
+              const upperName = path5.basename(filePath).toUpperCase();
               for (const actualName of yield exports2.readdir(directory)) {
                 if (upperName === actualName.toUpperCase()) {
-                  filePath = path4.join(directory, actualName);
+                  filePath = path5.join(directory, actualName);
                   break;
                 }
               }
@@ -497,7 +497,7 @@ var require_io = __commonJS((exports2) => {
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
   var childProcess = require("child_process");
-  var path4 = require("path");
+  var path5 = require("path");
   var util_1 = require("util");
   var ioUtil = require_io_util();
   var exec5 = util_1.promisify(childProcess.exec);
@@ -508,7 +508,7 @@ var require_io = __commonJS((exports2) => {
       if (destStat && destStat.isFile() && !force) {
         return;
       }
-      const newDest = destStat && destStat.isDirectory() ? path4.join(dest, path4.basename(source)) : dest;
+      const newDest = destStat && destStat.isDirectory() ? path5.join(dest, path5.basename(source)) : dest;
       if (!(yield ioUtil.exists(source))) {
         throw new Error(`no such file or directory: ${source}`);
       }
@@ -520,7 +520,7 @@ var require_io = __commonJS((exports2) => {
           yield cpDirRecursive(source, newDest, 0, force);
         }
       } else {
-        if (path4.relative(source, newDest) === "") {
+        if (path5.relative(source, newDest) === "") {
           throw new Error(`'${newDest}' and '${source}' are the same file`);
         }
         yield copyFile(source, newDest, force);
@@ -533,7 +533,7 @@ var require_io = __commonJS((exports2) => {
       if (yield ioUtil.exists(dest)) {
         let destExists = true;
         if (yield ioUtil.isDirectory(dest)) {
-          dest = path4.join(dest, path4.basename(source));
+          dest = path5.join(dest, path5.basename(source));
           destExists = yield ioUtil.exists(dest);
         }
         if (destExists) {
@@ -544,7 +544,7 @@ var require_io = __commonJS((exports2) => {
           }
         }
       }
-      yield mkdirP(path4.dirname(dest));
+      yield mkdirP(path5.dirname(dest));
       yield ioUtil.rename(source, dest);
     });
   }
@@ -610,7 +610,7 @@ var require_io = __commonJS((exports2) => {
       try {
         const extensions = [];
         if (ioUtil.IS_WINDOWS && process.env.PATHEXT) {
-          for (const extension of process.env.PATHEXT.split(path4.delimiter)) {
+          for (const extension of process.env.PATHEXT.split(path5.delimiter)) {
             if (extension) {
               extensions.push(extension);
             }
@@ -628,14 +628,14 @@ var require_io = __commonJS((exports2) => {
         }
         const directories = [];
         if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path4.delimiter)) {
+          for (const p of process.env.PATH.split(path5.delimiter)) {
             if (p) {
               directories.push(p);
             }
           }
         }
         for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(directory + path4.sep + tool, extensions);
+          const filePath = yield ioUtil.tryGetExecutablePath(directory + path5.sep + tool, extensions);
           if (filePath) {
             return filePath;
           }
@@ -739,7 +739,7 @@ var require_toolrunner = __commonJS((exports2) => {
   var os3 = __importStar(require("os"));
   var events = __importStar(require("events"));
   var child = __importStar(require("child_process"));
-  var path4 = __importStar(require("path"));
+  var path5 = __importStar(require("path"));
   var io = __importStar(require_io());
   var ioUtil = __importStar(require_io_util());
   var IS_WINDOWS2 = process.platform === "win32";
@@ -943,7 +943,7 @@ var require_toolrunner = __commonJS((exports2) => {
     exec() {
       return __awaiter(this, void 0, void 0, function* () {
         if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS2 && this.toolPath.includes("\\"))) {
-          this.toolPath = path4.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+          this.toolPath = path5.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
         }
         this.toolPath = yield io.which(this.toolPath, true);
         return new Promise((resolve, reject) => {
@@ -5541,7 +5541,7 @@ var require_tool_cache = __commonJS((exports2) => {
   var fs2 = __importStar(require("fs"));
   var mm = __importStar(require_manifest());
   var os3 = __importStar(require("os"));
-  var path4 = __importStar(require("path"));
+  var path5 = __importStar(require("path"));
   var httpm = __importStar(require_http_client());
   var semver3 = __importStar(require_semver3());
   var stream = __importStar(require("stream"));
@@ -5563,8 +5563,8 @@ var require_tool_cache = __commonJS((exports2) => {
   var userAgent = "actions/tool-cache";
   function downloadTool2(url, dest, auth) {
     return __awaiter(this, void 0, void 0, function* () {
-      dest = dest || path4.join(_getTempDirectory(), v4_1.default());
-      yield io.mkdirP(path4.dirname(dest));
+      dest = dest || path5.join(_getTempDirectory(), v4_1.default());
+      yield io.mkdirP(path5.dirname(dest));
       core4.debug(`Downloading ${url}`);
       core4.debug(`Destination ${dest}`);
       const maxAttempts = 3;
@@ -5651,7 +5651,7 @@ var require_tool_cache = __commonJS((exports2) => {
           process.chdir(originalCwd);
         }
       } else {
-        const escapedScript = path4.join(__dirname, "..", "scripts", "Invoke-7zdec.ps1").replace(/'/g, "''").replace(/"|\n|\r/g, "");
+        const escapedScript = path5.join(__dirname, "..", "scripts", "Invoke-7zdec.ps1").replace(/'/g, "''").replace(/"|\n|\r/g, "");
         const escapedFile = file.replace(/'/g, "''").replace(/"|\n|\r/g, "");
         const escapedTarget = dest.replace(/'/g, "''").replace(/"|\n|\r/g, "");
         const command = `& '${escapedScript}' -Source '${escapedFile}' -Target '${escapedTarget}'`;
@@ -5798,7 +5798,7 @@ var require_tool_cache = __commonJS((exports2) => {
       }
       const destPath = yield _createToolPath(tool, version, arch2);
       for (const itemName of fs2.readdirSync(sourceDir)) {
-        const s = path4.join(sourceDir, itemName);
+        const s = path5.join(sourceDir, itemName);
         yield io.cp(s, destPath, {recursive: true});
       }
       _completeToolPath(tool, version, arch2);
@@ -5816,7 +5816,7 @@ var require_tool_cache = __commonJS((exports2) => {
         throw new Error("sourceFile is not a file");
       }
       const destFolder = yield _createToolPath(tool, version, arch2);
-      const destPath = path4.join(destFolder, targetFile);
+      const destPath = path5.join(destFolder, targetFile);
       core4.debug(`destination file ${destPath}`);
       yield io.cp(sourceFile, destPath);
       _completeToolPath(tool, version, arch2);
@@ -5840,7 +5840,7 @@ var require_tool_cache = __commonJS((exports2) => {
     let toolPath = "";
     if (versionSpec) {
       versionSpec = semver3.clean(versionSpec) || "";
-      const cachePath = path4.join(_getCacheDirectory(), toolName, versionSpec, arch2);
+      const cachePath = path5.join(_getCacheDirectory(), toolName, versionSpec, arch2);
       core4.debug(`checking cache: ${cachePath}`);
       if (fs2.existsSync(cachePath) && fs2.existsSync(`${cachePath}.complete`)) {
         core4.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch2}`);
@@ -5855,12 +5855,12 @@ var require_tool_cache = __commonJS((exports2) => {
   function findAllVersions(toolName, arch2) {
     const versions = [];
     arch2 = arch2 || os3.arch();
-    const toolPath = path4.join(_getCacheDirectory(), toolName);
+    const toolPath = path5.join(_getCacheDirectory(), toolName);
     if (fs2.existsSync(toolPath)) {
       const children = fs2.readdirSync(toolPath);
       for (const child of children) {
         if (_isExplicitVersion(child)) {
-          const fullPath = path4.join(toolPath, child, arch2 || "");
+          const fullPath = path5.join(toolPath, child, arch2 || "");
           if (fs2.existsSync(fullPath) && fs2.existsSync(`${fullPath}.complete`)) {
             versions.push(child);
           }
@@ -5915,7 +5915,7 @@ var require_tool_cache = __commonJS((exports2) => {
   function _createExtractFolder(dest) {
     return __awaiter(this, void 0, void 0, function* () {
       if (!dest) {
-        dest = path4.join(_getTempDirectory(), v4_1.default());
+        dest = path5.join(_getTempDirectory(), v4_1.default());
       }
       yield io.mkdirP(dest);
       return dest;
@@ -5923,7 +5923,7 @@ var require_tool_cache = __commonJS((exports2) => {
   }
   function _createToolPath(tool, version, arch2) {
     return __awaiter(this, void 0, void 0, function* () {
-      const folderPath = path4.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
+      const folderPath = path5.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
       core4.debug(`destination ${folderPath}`);
       const markerPath = `${folderPath}.complete`;
       yield io.rmRF(folderPath);
@@ -5933,7 +5933,7 @@ var require_tool_cache = __commonJS((exports2) => {
     });
   }
   function _completeToolPath(tool, version, arch2) {
-    const folderPath = path4.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
+    const folderPath = path5.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
     const markerPath = `${folderPath}.complete`;
     fs2.writeFileSync(markerPath, "");
     core4.debug("finished caching tool");
@@ -6166,18 +6166,28 @@ async function findPythonVersion(version, architecture) {
 // src/setup-pdm.ts
 var os2 = __toModule(require("os"));
 var import_child_process = __toModule(require("child_process"));
+var import_path = __toModule(require("path"));
 var INSTALL_VERSION = "3.8";
 async function run() {
   const arch2 = core3.getInput("architecture") || os2.arch();
   const pdmVersion = core3.getInput("version");
   const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
+  const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
+  if (core3.getInput("prerelease")) {
+    cmdArgs.push("--pre");
+  }
   try {
     await findPythonVersion(INSTALL_VERSION, arch2);
-    await exec3.exec("python", ["-m", "pip", "install", "-U", pdmPackage]);
+    await exec3.exec("python", cmdArgs);
     const installed = await findPythonVersion(core3.getInput("python-version"), arch2);
     await exec3.exec("pdm", ["use", "-f", installed.version]);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
+    if (process.platform === "linux") {
+      core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
+    }
     core3.info(`Successfully setup ${pdmVersionOutput} with Python ${installed.version}`);
+    const matchersPath = import_path.default.join(__dirname, "..", ".github");
+    core3.info(`##[add-matcher]${import_path.default.join(matchersPath, "python.json")}`);
   } catch (error2) {
     core3.setFailed(error2.message);
   }
