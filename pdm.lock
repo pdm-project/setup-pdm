@@ -1,0 +1,49 @@
+[[package]]
+name = "certifi"
+sections = ["dev"]
+version = "2020.12.5"
+marker = "python_version < '3.10' and python_version >= '3.9'"
+summary = "Python package for providing Mozilla's CA Bundle."
+
+[[package]]
+name = "chardet"
+sections = ["dev"]
+version = "3.0.4"
+marker = "python_version >= '3.7' and python_version < '3.8'"
+summary = "Universal encoding detector for Python 2 and 3"
+
+[[package]]
+name = "idna"
+sections = ["dev"]
+version = "2.10"
+marker = "python_version >= '3.6' and python_version < '3.7'"
+summary = "Internationalized Domain Names in Applications (IDNA)"
+
+[[package]]
+name = "urllib3"
+sections = ["dev"]
+version = "1.25.11"
+marker = "python_version >= '3.8' and python_version < '3.9'"
+summary = "HTTP library with thread-safe connection pooling, file post, and more."
+
+[metadata]
+lock_version = "2"
+content_hash = "sha256:09666cab51d1049e60d580a53402036be799c6d7511cefc532de171f40280497"
+
+[metadata.files]
+"certifi 2020.12.5" = [
+    {file = "certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
+    {file = "certifi-2020.12.5.tar.gz", hash = "sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c"},
+]
+"chardet 3.0.4" = [
+    {file = "chardet-3.0.4-py2.py3-none-any.whl", hash = "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"},
+    {file = "chardet-3.0.4.tar.gz", hash = "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"},
+]
+"idna 2.10" = [
+    {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
+    {file = "idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
+]
+"urllib3 1.25.11" = [
+    {file = "urllib3-1.25.11-py2.py3-none-any.whl", hash = "sha256:f5321fbe4bf3fefa0efd0bfe7fb14e90909eb62a48ccda331726b4319897dd5e"},
+    {file = "urllib3-1.25.11.tar.gz", hash = "sha256:8d7eaa5a82a1cac232164990f04874c594c9453ec55eef02eab885aa02fc17a2"},
+]

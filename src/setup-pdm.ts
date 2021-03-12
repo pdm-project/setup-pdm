@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import * as setupPython from "setup-python/dist";
+import * as setupPython from "setup-python/src/find-python";
 import * as os from "os";
 import { exec as execChild } from "child_process";
 
