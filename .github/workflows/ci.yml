@@ -8,6 +8,7 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9]
     name: Test the action
     steps:
+      - uses: actions/checkout@v2
       - name: Setup PDM
         uses: ./
         with:
