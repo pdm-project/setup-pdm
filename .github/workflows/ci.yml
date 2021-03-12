@@ -1,5 +1,7 @@
 on: [push]
 
+name: Test Action
+
 jobs:
   Testing:
     runs-on: ubuntu-latest
@@ -14,5 +16,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Get the project info
-        run: pdm info
+      - name: Install dependencies
+        run: pdm install -d -v
+        env:
+          LD_PRELOAD: /lib/x86_64-linux-gnu/libgcc_s.so.1
+
+      - name: Verify python version
+        run: pdm run python test.py
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
