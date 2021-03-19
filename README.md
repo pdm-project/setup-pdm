@@ -2,6 +2,11 @@
 
 A GitHub Action that installs pdm properly for all Python versions
 
+## Why do I need this action?
+
+As you know, PDM requires Python 3.7 and higher to install the package, while till now(March 2021) Python 3.6 is still widely used by many libraries. The version requirement will prevent potential users from adopting PDM. However, it is a misunderstanding, PDM CAN run projects using Python 3.6 or even Python 2!
+But it is still not obvious and it is a pain for developers to properly build their CI workflows. So I made `pdm-project/setup-pdm` to solve the problem. It is PDM-for-CI done right!
+
 ## Usage
 
 Include the action in your workflow yaml file with the following arguments:
