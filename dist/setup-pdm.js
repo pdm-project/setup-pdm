@@ -6173,19 +6173,21 @@ async function run() {
   const pdmVersion = core3.getInput("version");
   const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
   const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
-  if (core3.getInput("prerelease")) {
+  if (core3.getInput("prerelease") === "true") {
     cmdArgs.push("--pre");
   }
   try {
-    await findPythonVersion(INSTALL_VERSION, arch2);
+    let installedPython = await findPythonVersion(INSTALL_VERSION, arch2);
     await exec3.exec("python", cmdArgs);
-    const installed = await findPythonVersion(core3.getInput("python-version"), arch2);
-    await exec3.exec("pdm", ["use", "-f", installed.version]);
-    const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
+    if (core3.getInput("python-version") !== INSTALL_VERSION) {
+      installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
+    }
+    await exec3.exec("pdm", ["use", "-f", installedPython.version]);
+    const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout?.read();
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
     }
-    core3.info(`Successfully setup ${pdmVersionOutput} with Python ${installed.version}`);
+    core3.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython.version}`);
     const matchersPath = import_path.default.join(__dirname, "..", ".github");
     core3.info(`##[add-matcher]${import_path.default.join(matchersPath, "python.json")}`);
   } catch (error2) {
