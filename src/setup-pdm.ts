@@ -12,7 +12,7 @@ async function run() {
   const pdmVersion = core.getInput("version");
   const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
   const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
-  if (core.getInput("prerelease")) {
+  if (core.getInput("prerelease") === 'true') {
     cmdArgs.push("--pre");
   }
   try {
