@@ -25,13 +25,13 @@ async function run(): Promise<void> {
       );
     }
     await exec.exec("pdm", ["use", "-f", installedPython.version]);
-    const pdmVersionOutput = (await execChild("pdm --version")).stdout?.read();
+    const pdmVersionOutput = (await execChild("pdm --version")).stdout;
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
       core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1');
     }
     core.info(
-      `Successfully setup ${pdmVersionOutput} with Python ${installedPython.version}`
+      `Successfully setup ${pdmVersionOutput && pdmVersionOutput.read()} with Python ${installedPython.version}`
     );
     const matchersPath = path.join(__dirname, '..', '.github');
     core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`);

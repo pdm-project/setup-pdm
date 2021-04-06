@@ -6183,11 +6183,11 @@ async function run() {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
     await exec3.exec("pdm", ["use", "-f", installedPython.version]);
-    const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout?.read();
+    const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
     }
-    core3.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython.version}`);
+    core3.info(`Successfully setup ${pdmVersionOutput && pdmVersionOutput.read()} with Python ${installedPython.version}`);
     const matchersPath = import_path.default.join(__dirname, "..", ".github");
     core3.info(`##[add-matcher]${import_path.default.join(matchersPath, "python.json")}`);
   } catch (error2) {
