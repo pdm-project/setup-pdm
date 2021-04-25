@@ -1,6 +1,6 @@
 {
   "name": "setup-pdm",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "The GitHub Action for using pdm as the package manager",
   "main": "dist/setup-pdm.js",
   "scripts": {
