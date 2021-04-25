@@ -22,6 +22,6 @@ jobs:
           LD_PRELOAD: /lib/x86_64-linux-gnu/libgcc_s.so.1
 
       - name: Verify python version
-        run: pdm run python test.py
+        run: python test.py
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}

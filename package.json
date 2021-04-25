@@ -1,14 +1,14 @@
 {
-  "name": "pdm-action",
+  "name": "setup-pdm",
   "version": "1.0.0",
   "description": "The GitHub Action for using pdm as the package manager",
-  "main": "src/index.js",
+  "main": "dist/setup-pdm.js",
   "scripts": {
     "build": "esbuild src/setup-pdm.ts --bundle --platform=node --outfile=dist/setup-pdm.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pdm-project/pdm-action.git"
+    "url": "git+https://github.com/pdm-project/setup-pdm.git"
   },
   "dependencies": {
     "@actions/core": "^1.2.6",
