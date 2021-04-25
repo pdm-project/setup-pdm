@@ -6168,6 +6168,14 @@ var os2 = __toModule(require("os"));
 var import_child_process = __toModule(require("child_process"));
 var import_path = __toModule(require("path"));
 var INSTALL_VERSION = "3.8";
+function getPep582Path() {
+  const installDir = process.env.pythonLocation || "";
+  if (IS_WINDOWS) {
+    return import_path.default.resolve(installDir, "Lib/site-packages/pdm/pep582");
+  } else {
+    return import_path.default.resolve(installDir, "lib", `python${INSTALL_VERSION}`, "site-packages/pdm/pep582");
+  }
+}
 async function run() {
   const arch2 = core3.getInput("architecture") || os2.arch();
   const pdmVersion = core3.getInput("version");
@@ -6179,6 +6187,9 @@ async function run() {
   try {
     let installedPython = await findPythonVersion(INSTALL_VERSION, arch2);
     await exec3.exec("python", cmdArgs);
+    if (core3.getInput("enable-pep582") === "true") {
+      core3.exportVariable("PYTHONPATH", getPep582Path());
+    }
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }

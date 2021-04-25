@@ -6,16 +6,25 @@ inputs:
   python-version:
     description: "Version range or exact version of a Python version to use, using SemVer's version range syntax."
     default: "3.x"
+    required: true
   architecture:
     description: "The target architecture (x86, x64) of the Python interpreter."
+    required: false
   token:
     description: Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
     default: ${{ github.token }}
+    required: false
   version:
     description: The version of PDM to install.
+    required: false
   prerelease:
     description: Allow prerelease versions to be installed
-    default: false
+    default: 'false'
+    required: false
+  enable-pep582:
+    description: "Enable PEP 582 package loading globally."
+    default: 'true'
+    required: false
 runs:
   using: "node12"
   main: "dist/setup-pdm.js"
