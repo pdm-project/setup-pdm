@@ -21,8 +21,9 @@ steps:
         architecture: x64    # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
         version: 1.4.0       # The version of PDM to install. Leave it as empty to use the latest version from PyPI
         prerelease: true     # Allow prerelease versions to be installed
+        enable-pep582: true  # Enable PEP 582 package loading globally
     - name: Install dependencies
-      run: pdm install -d    # Then you can use pdm in the following steps.
+      run: pdm install       # Then you can use pdm in the following steps.
     ...
 ```
 

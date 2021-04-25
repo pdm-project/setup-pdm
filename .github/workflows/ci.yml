@@ -17,9 +17,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pdm install -d -v
-        env:
-          LD_PRELOAD: /lib/x86_64-linux-gnu/libgcc_s.so.1
+        run: pdm install -v
 
       - name: Verify python version
         run: python test.py
