@@ -14,7 +14,7 @@ Include the action in your workflow yaml file with the following arguments:
 ```yaml
 steps:
     ...
-    - uses: pdm-project/setup-pdm@v2.0
+    - uses: pdm-project/setup-pdm@v2
       name: Setup PDM
       with:
         python-version: 3.8  # Version range or exact version of a Python version to use, the same as actions/setup-python
