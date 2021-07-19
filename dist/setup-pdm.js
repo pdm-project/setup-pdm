@@ -6180,7 +6180,7 @@ async function run() {
   const arch2 = core3.getInput("architecture") || os2.arch();
   const pdmVersion = core3.getInput("version");
   const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
-  const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
+  const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage, "toml"];
   if (core3.getInput("prerelease") === "true") {
     cmdArgs.push("--pre");
   }

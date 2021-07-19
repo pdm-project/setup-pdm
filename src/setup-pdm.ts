@@ -21,7 +21,7 @@ async function run(): Promise<void> {
   const arch = core.getInput('architecture') || os.arch();
   const pdmVersion = core.getInput('version');
   const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : 'pdm';
-  const cmdArgs = ['-m', 'pip', 'install', '-U', pdmPackage];
+  const cmdArgs = ['-m', 'pip', 'install', '-U', pdmPackage, 'toml'];
   if (core.getInput('prerelease') === 'true') {
     cmdArgs.push('--pre');
   }
