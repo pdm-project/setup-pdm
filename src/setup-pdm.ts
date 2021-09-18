@@ -37,7 +37,7 @@ async function run(): Promise<void> {
         arch
       );
     }
-    await exec.exec('pdm', ['use', '-f', installedPython.version]);
+    await exec.exec('pdm', ['use', '-f', 'python' + installedPython.version.replace(/^([23]\.\d+).*$/g, '$1')]);
     const pdmVersionOutput = (await execChild('pdm --version')).stdout;
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
