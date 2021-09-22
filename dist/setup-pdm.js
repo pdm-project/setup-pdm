@@ -6521,17 +6521,14 @@ async function run() {
   try {
     let installedPython = await findPythonVersion(INSTALL_VERSION, arch2);
     await exec3.exec("python", cmdArgs);
+    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "Scripts/python.exe" : "bin/python");
     if (core3.getInput("enable-pep582") === "true") {
       core3.exportVariable("PYTHONPATH", getPep582Path());
     }
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
-    await exec3.exec("pdm", [
-      "use",
-      "-f",
-      "python" + installedPython.version.replace(/^([23]\.\d+).*$/g, "$1")
-    ]);
+    await exec3.exec("pdm", ["use", "-f", pythonBin]);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");

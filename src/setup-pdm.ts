@@ -28,17 +28,17 @@ async function run(): Promise<void> {
   try {
     let installedPython = await setupPython.findPythonVersion(INSTALL_VERSION, arch)
     await exec.exec("python", cmdArgs)
+    const pythonBin = path.join(
+      process.env.pythonLocation as string,
+      IS_WINDOWS ? "Scripts/python.exe" : "bin/python"
+    )
     if (core.getInput("enable-pep582") === "true") {
       core.exportVariable("PYTHONPATH", getPep582Path())
     }
     if (core.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await setupPython.findPythonVersion(core.getInput("python-version"), arch)
     }
-    await exec.exec("pdm", [
-      "use",
-      "-f",
-      "python" + installedPython.version.replace(/^([23]\.\d+).*$/g, "$1"),
-    ])
+    await exec.exec("pdm", ["use", "-f", pythonBin])
     const pdmVersionOutput = (await execChild("pdm --version")).stdout
     if (process.platform === "linux") {
       // See https://github.com/actions/virtual-environments/issues/2803
