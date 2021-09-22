@@ -16,7 +16,8 @@ PACKAGE_MAP = {
 class TestActionSuite(unittest.TestCase):
     def test_check_python_version(self):
         self.assertEqual(
-            ".".join(map(str, sys.version_info[:2])), os.getenv("PYTHON_VERSION")
+            ".".join(map(str, sys.version_info[:2])),
+            ".".join(os.getenv("PYTHON_VERSION").split(".")[:2]),
         )
 
     def test_check_dependencies(self):
