@@ -4,10 +4,11 @@ name: Test Action
 
 jobs:
   Testing:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8, 3.9, "3.10.0-beta - 3.10.0"]
+        os: ["ubuntu-latest", "windows-latest"]
     name: Test the action
     steps:
       - uses: actions/checkout@v2

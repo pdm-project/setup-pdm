@@ -6527,7 +6527,7 @@ async function run() {
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
-    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "Scripts/python.exe" : "bin/python");
+    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "python.exe" : "bin/python");
     await exec3.exec("pdm", ["use", "-f", pythonBin]);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {

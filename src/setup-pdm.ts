@@ -36,7 +36,7 @@ async function run(): Promise<void> {
     }
     const pythonBin = path.join(
       process.env.pythonLocation as string,
-      IS_WINDOWS ? "Scripts/python.exe" : "bin/python"
+      IS_WINDOWS ? "python.exe" : "bin/python"
     )
     await exec.exec("pdm", ["use", "-f", pythonBin])
     const pdmVersionOutput = (await execChild("pdm --version")).stdout
