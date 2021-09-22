@@ -28,6 +28,7 @@ var __toModule = (module2) => {
 var require_utils = __commonJS((exports2) => {
   "use strict";
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.toCommandProperties = exports2.toCommandValue = void 0;
   function toCommandValue(input) {
     if (input === null || input === void 0) {
       return "";
@@ -37,24 +38,54 @@ var require_utils = __commonJS((exports2) => {
     return JSON.stringify(input);
   }
   exports2.toCommandValue = toCommandValue;
+  function toCommandProperties(annotationProperties) {
+    if (!Object.keys(annotationProperties).length) {
+      return {};
+    }
+    return {
+      title: annotationProperties.title,
+      line: annotationProperties.startLine,
+      endLine: annotationProperties.endLine,
+      col: annotationProperties.startColumn,
+      endColumn: annotationProperties.endColumn
+    };
+  }
+  exports2.toCommandProperties = toCommandProperties;
 });
 
 // node_modules/@actions/core/lib/command.js
 var require_command = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
   var __importStar = exports2 && exports2.__importStar || function(mod) {
     if (mod && mod.__esModule)
       return mod;
     var result = {};
     if (mod != null) {
       for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
     }
-    result["default"] = mod;
+    __setModuleDefault(result, mod);
     return result;
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.issue = exports2.issueCommand = void 0;
   var os3 = __importStar(require("os"));
   var utils_1 = require_utils();
   function issueCommand(command, properties, message) {
@@ -110,19 +141,36 @@ var require_command = __commonJS((exports2) => {
 // node_modules/@actions/core/lib/file-command.js
 var require_file_command = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
   var __importStar = exports2 && exports2.__importStar || function(mod) {
     if (mod && mod.__esModule)
       return mod;
     var result = {};
     if (mod != null) {
       for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
     }
-    result["default"] = mod;
+    __setModuleDefault(result, mod);
     return result;
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.issueCommand = void 0;
   var fs2 = __importStar(require("fs"));
   var os3 = __importStar(require("os"));
   var utils_1 = require_utils();
@@ -144,6 +192,34 @@ var require_file_command = __commonJS((exports2) => {
 // node_modules/@actions/core/lib/core.js
 var require_core = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -171,19 +247,8 @@ var require_core = __commonJS((exports2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.getState = exports2.saveState = exports2.group = exports2.endGroup = exports2.startGroup = exports2.info = exports2.notice = exports2.warning = exports2.error = exports2.debug = exports2.isDebug = exports2.setFailed = exports2.setCommandEcho = exports2.setOutput = exports2.getBooleanInput = exports2.getMultilineInput = exports2.getInput = exports2.addPath = exports2.setSecret = exports2.exportVariable = exports2.ExitCode = void 0;
   var command_1 = require_command();
   var file_command_1 = require_file_command();
   var utils_1 = require_utils();
@@ -226,10 +291,31 @@ var require_core = __commonJS((exports2) => {
     if (options && options.required && !val) {
       throw new Error(`Input required and not supplied: ${name}`);
     }
+    if (options && options.trimWhitespace === false) {
+      return val;
+    }
     return val.trim();
   }
   exports2.getInput = getInput3;
+  function getMultilineInput(name, options) {
+    const inputs = getInput3(name, options).split("\n").filter((x) => x !== "");
+    return inputs;
+  }
+  exports2.getMultilineInput = getMultilineInput;
+  function getBooleanInput(name, options) {
+    const trueValue = ["true", "True", "TRUE"];
+    const falseValue = ["false", "False", "FALSE"];
+    const val = getInput3(name, options);
+    if (trueValue.includes(val))
+      return true;
+    if (falseValue.includes(val))
+      return false;
+    throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
+Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
+  }
+  exports2.getBooleanInput = getBooleanInput;
   function setOutput2(name, value) {
+    process.stdout.write(os3.EOL);
     command_1.issueCommand("set-output", {name}, value);
   }
   exports2.setOutput = setOutput2;
@@ -250,14 +336,18 @@ var require_core = __commonJS((exports2) => {
     command_1.issueCommand("debug", {}, message);
   }
   exports2.debug = debug2;
-  function error2(message) {
-    command_1.issue("error", message instanceof Error ? message.toString() : message);
+  function error2(message, properties = {}) {
+    command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
   }
   exports2.error = error2;
-  function warning(message) {
-    command_1.issue("warning", message instanceof Error ? message.toString() : message);
+  function warning(message, properties = {}) {
+    command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
   }
   exports2.warning = warning;
+  function notice(message, properties = {}) {
+    command_1.issueCommand("notice", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+  }
+  exports2.notice = notice;
   function info4(message) {
     process.stdout.write(message + os3.EOL);
   }
@@ -296,6 +386,34 @@ var require_core = __commonJS((exports2) => {
 // node_modules/@actions/io/lib/io-util.js
 var require_io_util = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -325,9 +443,9 @@ var require_io_util = __commonJS((exports2) => {
   };
   var _a;
   Object.defineProperty(exports2, "__esModule", {value: true});
-  var assert_1 = require("assert");
-  var fs2 = require("fs");
-  var path5 = require("path");
+  exports2.getCmdPath = exports2.tryGetExecutablePath = exports2.isRooted = exports2.isDirectory = exports2.exists = exports2.IS_WINDOWS = exports2.unlink = exports2.symlink = exports2.stat = exports2.rmdir = exports2.rename = exports2.readlink = exports2.readdir = exports2.mkdir = exports2.lstat = exports2.copyFile = exports2.chmod = void 0;
+  var fs2 = __importStar(require("fs"));
+  var path5 = __importStar(require("path"));
   _a = fs2.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
   exports2.IS_WINDOWS = process.platform === "win32";
   function exists(fsPath) {
@@ -362,37 +480,6 @@ var require_io_util = __commonJS((exports2) => {
     return p.startsWith("/");
   }
   exports2.isRooted = isRooted;
-  function mkdirP(fsPath, maxDepth = 1e3, depth = 1) {
-    return __awaiter(this, void 0, void 0, function* () {
-      assert_1.ok(fsPath, "a path argument must be provided");
-      fsPath = path5.resolve(fsPath);
-      if (depth >= maxDepth)
-        return exports2.mkdir(fsPath);
-      try {
-        yield exports2.mkdir(fsPath);
-        return;
-      } catch (err) {
-        switch (err.code) {
-          case "ENOENT": {
-            yield mkdirP(path5.dirname(fsPath), maxDepth, depth + 1);
-            yield exports2.mkdir(fsPath);
-            return;
-          }
-          default: {
-            let stats;
-            try {
-              stats = yield exports2.stat(fsPath);
-            } catch (err2) {
-              throw err;
-            }
-            if (!stats.isDirectory())
-              throw err;
-          }
-        }
-      }
-    });
-  }
-  exports2.mkdirP = mkdirP;
   function tryGetExecutablePath(filePath, extensions) {
     return __awaiter(this, void 0, void 0, function* () {
       let stats = void 0;
@@ -463,11 +550,44 @@ var require_io_util = __commonJS((exports2) => {
   function isUnixExecutable(stats) {
     return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
   }
+  function getCmdPath() {
+    var _a2;
+    return (_a2 = process.env["COMSPEC"]) !== null && _a2 !== void 0 ? _a2 : `cmd.exe`;
+  }
+  exports2.getCmdPath = getCmdPath;
 });
 
 // node_modules/@actions/io/lib/io.js
 var require_io = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -496,19 +616,22 @@ var require_io = __commonJS((exports2) => {
     });
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
-  var childProcess = require("child_process");
-  var path5 = require("path");
+  exports2.findInPath = exports2.which = exports2.mkdirP = exports2.rmRF = exports2.mv = exports2.cp = void 0;
+  var assert_1 = require("assert");
+  var childProcess = __importStar(require("child_process"));
+  var path5 = __importStar(require("path"));
   var util_1 = require("util");
-  var ioUtil = require_io_util();
+  var ioUtil = __importStar(require_io_util());
   var exec5 = util_1.promisify(childProcess.exec);
+  var execFile = util_1.promisify(childProcess.execFile);
   function cp(source, dest, options = {}) {
     return __awaiter(this, void 0, void 0, function* () {
-      const {force, recursive} = readCopyOptions(options);
+      const {force, recursive, copySourceDirectory} = readCopyOptions(options);
       const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
       if (destStat && destStat.isFile() && !force) {
         return;
       }
-      const newDest = destStat && destStat.isDirectory() ? path5.join(dest, path5.basename(source)) : dest;
+      const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path5.join(dest, path5.basename(source)) : dest;
       if (!(yield ioUtil.exists(source))) {
         throw new Error(`no such file or directory: ${source}`);
       }
@@ -552,11 +675,19 @@ var require_io = __commonJS((exports2) => {
   function rmRF(inputPath) {
     return __awaiter(this, void 0, void 0, function* () {
       if (ioUtil.IS_WINDOWS) {
+        if (/[*"<>|]/.test(inputPath)) {
+          throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
+        }
         try {
+          const cmdPath = ioUtil.getCmdPath();
           if (yield ioUtil.isDirectory(inputPath, true)) {
-            yield exec5(`rd /s /q "${inputPath}"`);
+            yield exec5(`${cmdPath} /s /c "rd /s /q "%inputPath%""`, {
+              env: {inputPath}
+            });
           } else {
-            yield exec5(`del /f /a "${inputPath}"`);
+            yield exec5(`${cmdPath} /s /c "del /f /a "%inputPath%""`, {
+              env: {inputPath}
+            });
           }
         } catch (err) {
           if (err.code !== "ENOENT")
@@ -578,7 +709,7 @@ var require_io = __commonJS((exports2) => {
           return;
         }
         if (isDir) {
-          yield exec5(`rm -rf "${inputPath}"`);
+          yield execFile(`rm`, [`-rf`, `${inputPath}`]);
         } else {
           yield ioUtil.unlink(inputPath);
         }
@@ -588,7 +719,8 @@ var require_io = __commonJS((exports2) => {
   exports2.rmRF = rmRF;
   function mkdirP(fsPath) {
     return __awaiter(this, void 0, void 0, function* () {
-      yield ioUtil.mkdirP(fsPath);
+      assert_1.ok(fsPath, "a path argument must be provided");
+      yield ioUtil.mkdir(fsPath, {recursive: true});
     });
   }
   exports2.mkdirP = mkdirP;
@@ -606,51 +738,63 @@ var require_io = __commonJS((exports2) => {
             throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
           }
         }
+        return result;
       }
-      try {
-        const extensions = [];
-        if (ioUtil.IS_WINDOWS && process.env.PATHEXT) {
-          for (const extension of process.env.PATHEXT.split(path5.delimiter)) {
-            if (extension) {
-              extensions.push(extension);
-            }
-          }
-        }
-        if (ioUtil.isRooted(tool)) {
-          const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-          if (filePath) {
-            return filePath;
-          }
-          return "";
-        }
-        if (tool.includes("/") || ioUtil.IS_WINDOWS && tool.includes("\\")) {
-          return "";
-        }
-        const directories = [];
-        if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path5.delimiter)) {
-            if (p) {
-              directories.push(p);
-            }
-          }
-        }
-        for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(directory + path5.sep + tool, extensions);
-          if (filePath) {
-            return filePath;
-          }
-        }
-        return "";
-      } catch (err) {
-        throw new Error(`which failed with message ${err.message}`);
+      const matches = yield findInPath(tool);
+      if (matches && matches.length > 0) {
+        return matches[0];
       }
+      return "";
     });
   }
   exports2.which = which;
+  function findInPath(tool) {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!tool) {
+        throw new Error("parameter 'tool' is required");
+      }
+      const extensions = [];
+      if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
+        for (const extension of process.env["PATHEXT"].split(path5.delimiter)) {
+          if (extension) {
+            extensions.push(extension);
+          }
+        }
+      }
+      if (ioUtil.isRooted(tool)) {
+        const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
+        if (filePath) {
+          return [filePath];
+        }
+        return [];
+      }
+      if (tool.includes(path5.sep)) {
+        return [];
+      }
+      const directories = [];
+      if (process.env.PATH) {
+        for (const p of process.env.PATH.split(path5.delimiter)) {
+          if (p) {
+            directories.push(p);
+          }
+        }
+      }
+      const matches = [];
+      for (const directory of directories) {
+        const filePath = yield ioUtil.tryGetExecutablePath(path5.join(directory, tool), extensions);
+        if (filePath) {
+          matches.push(filePath);
+        }
+      }
+      return matches;
+    });
+  }
+  exports2.findInPath = findInPath;
   function readCopyOptions(options) {
     const force = options.force == null ? true : options.force;
     const recursive = Boolean(options.recursive);
-    return {force, recursive};
+    const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
+    return {force, recursive, copySourceDirectory};
   }
   function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -696,6 +840,34 @@ var require_io = __commonJS((exports2) => {
 // node_modules/@actions/exec/lib/toolrunner.js
 var require_toolrunner = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -723,25 +895,15 @@ var require_toolrunner = __commonJS((exports2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.argStringToArray = exports2.ToolRunner = void 0;
   var os3 = __importStar(require("os"));
   var events = __importStar(require("events"));
   var child = __importStar(require("child_process"));
   var path5 = __importStar(require("path"));
   var io = __importStar(require_io());
   var ioUtil = __importStar(require_io_util());
+  var timers_1 = require("timers");
   var IS_WINDOWS2 = process.platform === "win32";
   var ToolRunner = class extends events.EventEmitter {
     constructor(toolPath, args, options) {
@@ -797,9 +959,10 @@ var require_toolrunner = __commonJS((exports2) => {
           s = s.substring(n + os3.EOL.length);
           n = s.indexOf(os3.EOL);
         }
-        strBuffer = s;
+        return s;
       } catch (err) {
         this._debug(`error processing line. Failed with error ${err}`);
+        return "";
       }
     }
     _getSpawnFileName() {
@@ -946,7 +1109,7 @@ var require_toolrunner = __commonJS((exports2) => {
           this.toolPath = path5.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
         }
         this.toolPath = yield io.which(this.toolPath, true);
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
           this._debug(`exec tool: ${this.toolPath}`);
           this._debug("arguments:");
           for (const arg of this.args) {
@@ -960,9 +1123,12 @@ var require_toolrunner = __commonJS((exports2) => {
           state.on("debug", (message) => {
             this._debug(message);
           });
+          if (this.options.cwd && !(yield ioUtil.exists(this.options.cwd))) {
+            return reject(new Error(`The cwd: ${this.options.cwd} does not exist!`));
+          }
           const fileName = this._getSpawnFileName();
           const cp = child.spawn(fileName, this._getSpawnArgs(optionsNonNull), this._getSpawnOptions(this.options, fileName));
-          const stdbuffer = "";
+          let stdbuffer = "";
           if (cp.stdout) {
             cp.stdout.on("data", (data) => {
               if (this.options.listeners && this.options.listeners.stdout) {
@@ -971,14 +1137,14 @@ var require_toolrunner = __commonJS((exports2) => {
               if (!optionsNonNull.silent && optionsNonNull.outStream) {
                 optionsNonNull.outStream.write(data);
               }
-              this._processLineBuffer(data, stdbuffer, (line) => {
+              stdbuffer = this._processLineBuffer(data, stdbuffer, (line) => {
                 if (this.options.listeners && this.options.listeners.stdline) {
                   this.options.listeners.stdline(line);
                 }
               });
             });
           }
-          const errbuffer = "";
+          let errbuffer = "";
           if (cp.stderr) {
             cp.stderr.on("data", (data) => {
               state.processStderr = true;
@@ -989,7 +1155,7 @@ var require_toolrunner = __commonJS((exports2) => {
                 const s = optionsNonNull.failOnStdErr ? optionsNonNull.errStream : optionsNonNull.outStream;
                 s.write(data);
               }
-              this._processLineBuffer(data, errbuffer, (line) => {
+              errbuffer = this._processLineBuffer(data, errbuffer, (line) => {
                 if (this.options.listeners && this.options.listeners.errline) {
                   this.options.listeners.errline(line);
                 }
@@ -1035,7 +1201,7 @@ var require_toolrunner = __commonJS((exports2) => {
             }
             cp.stdin.end(this.options.input);
           }
-        });
+        }));
       });
     }
   };
@@ -1112,7 +1278,7 @@ var require_toolrunner = __commonJS((exports2) => {
       if (this.processClosed) {
         this._setResult();
       } else if (this.processExited) {
-        this.timeout = setTimeout(ExecState.HandleTimeout, this.delay, this);
+        this.timeout = timers_1.setTimeout(ExecState.HandleTimeout, this.delay, this);
       }
     }
     _debug(message) {
@@ -1152,6 +1318,34 @@ var require_toolrunner = __commonJS((exports2) => {
 // node_modules/@actions/exec/lib/exec.js
 var require_exec = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -1179,19 +1373,9 @@ var require_exec = __commonJS((exports2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.getExecOutput = exports2.exec = void 0;
+  var string_decoder_1 = require("string_decoder");
   var tr = __importStar(require_toolrunner());
   function exec5(commandLine, args, options) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1206,6 +1390,39 @@ var require_exec = __commonJS((exports2) => {
     });
   }
   exports2.exec = exec5;
+  function getExecOutput(commandLine, args, options) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+      let stdout = "";
+      let stderr = "";
+      const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
+      const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
+      const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
+      const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+      const stdErrListener = (data) => {
+        stderr += stderrDecoder.write(data);
+        if (originalStdErrListener) {
+          originalStdErrListener(data);
+        }
+      };
+      const stdOutListener = (data) => {
+        stdout += stdoutDecoder.write(data);
+        if (originalStdoutListener) {
+          originalStdoutListener(data);
+        }
+      };
+      const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), {stdout: stdOutListener, stderr: stdErrListener});
+      const exitCode = yield exec5(commandLine, args, Object.assign(Object.assign({}, options), {listeners}));
+      stdout += stdoutDecoder.end();
+      stderr += stderrDecoder.end();
+      return {
+        exitCode,
+        stdout,
+        stderr
+      };
+    });
+  }
+  exports2.getExecOutput = getExecOutput;
 });
 
 // node_modules/semver/internal/constants.js
@@ -3200,10 +3417,11 @@ var require_simplify = __commonJS((exports2, module2) => {
 // node_modules/semver/ranges/subset.js
 var require_subset = __commonJS((exports2, module2) => {
   var Range = require_range();
-  var {ANY} = require_comparator();
+  var Comparator = require_comparator();
+  var {ANY} = Comparator;
   var satisfies = require_satisfies();
   var compare = require_compare();
-  var subset = (sub, dom, options) => {
+  var subset = (sub, dom, options = {}) => {
     if (sub === dom)
       return true;
     sub = new Range(sub, options);
@@ -3225,8 +3443,20 @@ var require_subset = __commonJS((exports2, module2) => {
   var simpleSubset = (sub, dom, options) => {
     if (sub === dom)
       return true;
-    if (sub.length === 1 && sub[0].semver === ANY)
-      return dom.length === 1 && dom[0].semver === ANY;
+    if (sub.length === 1 && sub[0].semver === ANY) {
+      if (dom.length === 1 && dom[0].semver === ANY)
+        return true;
+      else if (options.includePrerelease)
+        sub = [new Comparator(">=0.0.0-0")];
+      else
+        sub = [new Comparator(">=0.0.0")];
+    }
+    if (dom.length === 1 && dom[0].semver === ANY) {
+      if (options.includePrerelease)
+        return true;
+      else
+        dom = [new Comparator(">=0.0.0")];
+    }
     const eqSet = new Set();
     let gt, lt;
     for (const c of sub) {
@@ -3260,10 +3490,20 @@ var require_subset = __commonJS((exports2, module2) => {
     }
     let higher, lower;
     let hasDomLT, hasDomGT;
+    let needDomLTPre = lt && !options.includePrerelease && lt.semver.prerelease.length ? lt.semver : false;
+    let needDomGTPre = gt && !options.includePrerelease && gt.semver.prerelease.length ? gt.semver : false;
+    if (needDomLTPre && needDomLTPre.prerelease.length === 1 && lt.operator === "<" && needDomLTPre.prerelease[0] === 0) {
+      needDomLTPre = false;
+    }
     for (const c of dom) {
       hasDomGT = hasDomGT || c.operator === ">" || c.operator === ">=";
       hasDomLT = hasDomLT || c.operator === "<" || c.operator === "<=";
       if (gt) {
+        if (needDomGTPre) {
+          if (c.semver.prerelease && c.semver.prerelease.length && c.semver.major === needDomGTPre.major && c.semver.minor === needDomGTPre.minor && c.semver.patch === needDomGTPre.patch) {
+            needDomGTPre = false;
+          }
+        }
         if (c.operator === ">" || c.operator === ">=") {
           higher = higherGT(gt, c, options);
           if (higher === c && higher !== gt)
@@ -3272,6 +3512,11 @@ var require_subset = __commonJS((exports2, module2) => {
           return false;
       }
       if (lt) {
+        if (needDomLTPre) {
+          if (c.semver.prerelease && c.semver.prerelease.length && c.semver.major === needDomLTPre.major && c.semver.minor === needDomLTPre.minor && c.semver.patch === needDomLTPre.patch) {
+            needDomLTPre = false;
+          }
+        }
         if (c.operator === "<" || c.operator === "<=") {
           lower = lowerLT(lt, c, options);
           if (lower === c && lower !== lt)
@@ -3285,6 +3530,8 @@ var require_subset = __commonJS((exports2, module2) => {
     if (gt && hasDomLT && !lt && gtltComp !== 0)
       return false;
     if (lt && hasDomGT && !gt && gtltComp !== 0)
+      return false;
+    if (needDomGTPre || needDomLTPre)
       return false;
     return true;
   };
@@ -4482,6 +4729,34 @@ var require_semver3 = __commonJS((exports2, module2) => {
 // node_modules/@actions/tool-cache/lib/manifest.js
 var require_manifest = __commonJS((exports2, module2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -4509,19 +4784,8 @@ var require_manifest = __commonJS((exports2, module2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2._readLinuxVersionFile = exports2._getOsVersion = exports2._findMatch = void 0;
   var semver3 = __importStar(require_semver3());
   var core_1 = require_core();
   var os3 = require("os");
@@ -4576,8 +4840,8 @@ var require_manifest = __commonJS((exports2, module2) => {
         const lines = lsbContents.split("\n");
         for (const line of lines) {
           const parts = line.split("=");
-          if (parts.length === 2 && parts[0].trim() === "DISTRIB_RELEASE") {
-            version = parts[1].trim();
+          if (parts.length === 2 && (parts[0].trim() === "VERSION_ID" || parts[0].trim() === "DISTRIB_RELEASE")) {
+            version = parts[1].trim().replace(/^"/, "").replace(/"$/, "");
             break;
           }
         }
@@ -4587,10 +4851,13 @@ var require_manifest = __commonJS((exports2, module2) => {
   }
   exports2._getOsVersion = _getOsVersion;
   function _readLinuxVersionFile() {
-    const lsbFile = "/etc/lsb-release";
+    const lsbReleaseFile = "/etc/lsb-release";
+    const osReleaseFile = "/etc/os-release";
     let contents = "";
-    if (fs2.existsSync(lsbFile)) {
-      contents = fs2.readFileSync(lsbFile).toString();
+    if (fs2.existsSync(lsbReleaseFile)) {
+      contents = fs2.readFileSync(lsbReleaseFile).toString();
+    } else if (fs2.existsSync(osReleaseFile)) {
+      contents = fs2.readFileSync(osReleaseFile).toString();
     }
     return contents;
   }
@@ -5244,7 +5511,9 @@ var require_http_client = __commonJS((exports2) => {
           maxSockets,
           keepAlive: this._keepAlive,
           proxy: {
-            proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`,
+            ...(proxyUrl.username || proxyUrl.password) && {
+              proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`
+            },
             host: proxyUrl.hostname,
             port: proxyUrl.port
           }
@@ -5405,6 +5674,34 @@ var require_v4 = __commonJS((exports2, module2) => {
 // node_modules/@actions/tool-cache/lib/retry-helper.js
 var require_retry_helper = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -5432,19 +5729,8 @@ var require_retry_helper = __commonJS((exports2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.RetryHelper = void 0;
   var core4 = __importStar(require_core());
   var RetryHelper = class {
     constructor(maxAttempts, minSeconds, maxSeconds) {
@@ -5493,6 +5779,34 @@ var require_retry_helper = __commonJS((exports2) => {
 // node_modules/@actions/tool-cache/lib/tool-cache.js
 var require_tool_cache = __commonJS((exports2) => {
   "use strict";
+  var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    Object.defineProperty(o, k2, {enumerable: true, get: function() {
+      return m[k];
+    }});
+  } : function(o, m, k, k2) {
+    if (k2 === void 0)
+      k2 = k;
+    o[k2] = m[k];
+  });
+  var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {enumerable: true, value: v});
+  } : function(o, v) {
+    o["default"] = v;
+  });
+  var __importStar = exports2 && exports2.__importStar || function(mod) {
+    if (mod && mod.__esModule)
+      return mod;
+    var result = {};
+    if (mod != null) {
+      for (var k in mod)
+        if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+          __createBinding(result, mod, k);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+  };
   var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve) {
@@ -5520,22 +5834,11 @@ var require_tool_cache = __commonJS((exports2) => {
       step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
   };
-  var __importStar = exports2 && exports2.__importStar || function(mod) {
-    if (mod && mod.__esModule)
-      return mod;
-    var result = {};
-    if (mod != null) {
-      for (var k in mod)
-        if (Object.hasOwnProperty.call(mod, k))
-          result[k] = mod[k];
-    }
-    result["default"] = mod;
-    return result;
-  };
   var __importDefault = exports2 && exports2.__importDefault || function(mod) {
     return mod && mod.__esModule ? mod : {default: mod};
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.evaluateVersions = exports2.isExplicitVersion = exports2.findFromManifest = exports2.getManifestFromRepo = exports2.findAllVersions = exports2.find = exports2.cacheFile = exports2.cacheDir = exports2.extractZip = exports2.extractXar = exports2.extractTar = exports2.extract7z = exports2.downloadTool = exports2.HTTPError = void 0;
   var core4 = __importStar(require_core());
   var io = __importStar(require_io());
   var fs2 = __importStar(require("fs"));
@@ -5561,7 +5864,7 @@ var require_tool_cache = __commonJS((exports2) => {
   var IS_WINDOWS2 = process.platform === "win32";
   var IS_MAC = process.platform === "darwin";
   var userAgent = "actions/tool-cache";
-  function downloadTool2(url, dest, auth) {
+  function downloadTool2(url, dest, auth, headers) {
     return __awaiter(this, void 0, void 0, function* () {
       dest = dest || path5.join(_getTempDirectory(), v4_1.default());
       yield io.mkdirP(path5.dirname(dest));
@@ -5572,7 +5875,7 @@ var require_tool_cache = __commonJS((exports2) => {
       const maxSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS", 20);
       const retryHelper = new retry_helper_1.RetryHelper(maxAttempts, minSeconds, maxSeconds);
       return yield retryHelper.execute(() => __awaiter(this, void 0, void 0, function* () {
-        return yield downloadToolAttempt(url, dest || "", auth);
+        return yield downloadToolAttempt(url, dest || "", auth, headers);
       }), (err) => {
         if (err instanceof HTTPError && err.httpStatusCode) {
           if (err.httpStatusCode < 500 && err.httpStatusCode !== 408 && err.httpStatusCode !== 429) {
@@ -5584,7 +5887,7 @@ var require_tool_cache = __commonJS((exports2) => {
     });
   }
   exports2.downloadTool = downloadTool2;
-  function downloadToolAttempt(url, dest, auth) {
+  function downloadToolAttempt(url, dest, auth, headers) {
     return __awaiter(this, void 0, void 0, function* () {
       if (fs2.existsSync(dest)) {
         throw new Error(`Destination file path ${dest} already exists`);
@@ -5592,12 +5895,12 @@ var require_tool_cache = __commonJS((exports2) => {
       const http = new httpm.HttpClient(userAgent, [], {
         allowRetries: false
       });
-      let headers;
       if (auth) {
         core4.debug("set auth");
-        headers = {
-          authorization: auth
-        };
+        if (headers === void 0) {
+          headers = {};
+        }
+        headers.authorization = auth;
       }
       const response = yield http.get(url, headers);
       if (response.message.statusCode !== 200) {
@@ -5715,6 +6018,7 @@ var require_tool_cache = __commonJS((exports2) => {
       }
       if (isGnuTar) {
         args.push("--warning=no-unknown-keyword");
+        args.push("--overwrite");
       }
       args.push("-C", destArg, "-f", fileArg);
       yield exec_1.exec(`tar`, args);
@@ -5762,19 +6066,46 @@ var require_tool_cache = __commonJS((exports2) => {
     return __awaiter(this, void 0, void 0, function* () {
       const escapedFile = file.replace(/'/g, "''").replace(/"|\n|\r/g, "");
       const escapedDest = dest.replace(/'/g, "''").replace(/"|\n|\r/g, "");
-      const command = `$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ; [System.IO.Compression.ZipFile]::ExtractToDirectory('${escapedFile}', '${escapedDest}')`;
-      const powershellPath = yield io.which("powershell", true);
-      const args = [
-        "-NoLogo",
-        "-Sta",
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Unrestricted",
-        "-Command",
-        command
-      ];
-      yield exec_1.exec(`"${powershellPath}"`, args);
+      const pwshPath = yield io.which("pwsh", false);
+      if (pwshPath) {
+        const pwshCommand = [
+          `$ErrorActionPreference = 'Stop' ;`,
+          `try { Add-Type -AssemblyName System.IO.Compression.ZipFile } catch { } ;`,
+          `try { [System.IO.Compression.ZipFile]::ExtractToDirectory('${escapedFile}', '${escapedDest}', $true) }`,
+          `catch { if (($_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or ($_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath '${escapedFile}' -DestinationPath '${escapedDest}' -Force } else { throw $_ } } ;`
+        ].join(" ");
+        const args = [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy",
+          "Unrestricted",
+          "-Command",
+          pwshCommand
+        ];
+        core4.debug(`Using pwsh at path: ${pwshPath}`);
+        yield exec_1.exec(`"${pwshPath}"`, args);
+      } else {
+        const powershellCommand = [
+          `$ErrorActionPreference = 'Stop' ;`,
+          `try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { } ;`,
+          `if ((Get-Command -Name Expand-Archive -Module Microsoft.PowerShell.Archive -ErrorAction Ignore)) { Expand-Archive -LiteralPath '${escapedFile}' -DestinationPath '${escapedDest}' -Force }`,
+          `else {[System.IO.Compression.ZipFile]::ExtractToDirectory('${escapedFile}', '${escapedDest}', $true) }`
+        ].join(" ");
+        const args = [
+          "-NoLogo",
+          "-Sta",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy",
+          "Unrestricted",
+          "-Command",
+          powershellCommand
+        ];
+        const powershellPath = yield io.which("powershell", true);
+        core4.debug(`Using powershell at path: ${powershellPath}`);
+        yield exec_1.exec(`"${powershellPath}"`, args);
+      }
     });
   }
   function extractZipNix(file, dest) {
@@ -5784,6 +6115,7 @@ var require_tool_cache = __commonJS((exports2) => {
       if (!core4.isDebug()) {
         args.unshift("-q");
       }
+      args.unshift("-o");
       yield exec_1.exec(`"${unzipPath}"`, args, {cwd: dest});
     });
   }
@@ -5832,9 +6164,9 @@ var require_tool_cache = __commonJS((exports2) => {
       throw new Error("versionSpec parameter is required");
     }
     arch2 = arch2 || os3.arch();
-    if (!_isExplicitVersion(versionSpec)) {
+    if (!isExplicitVersion(versionSpec)) {
       const localVersions = findAllVersions(toolName, arch2);
-      const match = _evaluateVersions(localVersions, versionSpec);
+      const match = evaluateVersions(localVersions, versionSpec);
       versionSpec = match;
     }
     let toolPath = "";
@@ -5859,7 +6191,7 @@ var require_tool_cache = __commonJS((exports2) => {
     if (fs2.existsSync(toolPath)) {
       const children = fs2.readdirSync(toolPath);
       for (const child of children) {
-        if (_isExplicitVersion(child)) {
+        if (isExplicitVersion(child)) {
           const fullPath = path5.join(toolPath, child, arch2 || "");
           if (fs2.existsSync(fullPath) && fs2.existsSync(`${fullPath}.complete`)) {
             versions.push(child);
@@ -5938,14 +6270,15 @@ var require_tool_cache = __commonJS((exports2) => {
     fs2.writeFileSync(markerPath, "");
     core4.debug("finished caching tool");
   }
-  function _isExplicitVersion(versionSpec) {
+  function isExplicitVersion(versionSpec) {
     const c = semver3.clean(versionSpec) || "";
     core4.debug(`isExplicit: ${c}`);
     const valid = semver3.valid(c) != null;
     core4.debug(`explicit? ${valid}`);
     return valid;
   }
-  function _evaluateVersions(versions, versionSpec) {
+  exports2.isExplicitVersion = isExplicitVersion;
+  function evaluateVersions(versions, versionSpec) {
     let version = "";
     core4.debug(`evaluating ${versions.length} versions`);
     versions = versions.sort((a, b) => {
@@ -5969,6 +6302,7 @@ var require_tool_cache = __commonJS((exports2) => {
     }
     return version;
   }
+  exports2.evaluateVersions = evaluateVersions;
   function _getCacheDirectory() {
     const cacheDirectory = process.env["RUNNER_TOOL_CACHE"] || "";
     assert_1.ok(cacheDirectory, "Expected RUNNER_TOOL_CACHE to be defined");
@@ -6193,7 +6527,11 @@ async function run() {
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
-    await exec3.exec("pdm", ["use", "-f", installedPython.version]);
+    await exec3.exec("pdm", [
+      "use",
+      "-f",
+      "python" + installedPython.version.replace(/^([23]\.\d+).*$/g, "$1")
+    ]);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
