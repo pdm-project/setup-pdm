@@ -6658,6 +6658,7 @@ var os2 = __toModule(require("os"));
 var import_child_process = __toModule(require("child_process"));
 var import_path = __toModule(require("path"));
 var INSTALL_VERSION = "3.8";
+var GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
 function getPep582Path() {
   const installDir = process.env.pythonLocation || "";
   if (IS_WINDOWS) {
@@ -6669,7 +6670,8 @@ function getPep582Path() {
 async function run() {
   const arch2 = core3.getInput("architecture") || os2.arch();
   const pdmVersion = core3.getInput("version");
-  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
+  const ref = core3.getInput("ref");
+  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : ref ? `pdm @ git+${GITHUB_REPO}@${ref}` : "pdm";
   const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
   if (core3.getInput("prerelease") === "true") {
     cmdArgs.push("--pre");

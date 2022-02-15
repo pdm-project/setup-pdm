@@ -17,13 +17,16 @@ inputs:
   version:
     description: The version of PDM to install.
     required: false
+  ref:
+    description: The Ref of GitHub Repository
+    required: false
   prerelease:
     description: Allow prerelease versions to be installed
-    default: 'false'
+    default: "false"
     required: false
   enable-pep582:
     description: "Enable PEP 582 package loading globally."
-    default: 'true'
+    default: "true"
     required: false
 runs:
   using: "node12"

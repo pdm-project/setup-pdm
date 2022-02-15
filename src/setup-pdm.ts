@@ -7,6 +7,7 @@ import { exec as execChild } from "child_process";
 import path from "path";
 
 const INSTALL_VERSION = "3.8";
+const GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
 
 function getPep582Path(): string {
   const installDir = process.env.pythonLocation || "";
@@ -25,7 +26,12 @@ function getPep582Path(): string {
 async function run(): Promise<void> {
   const arch = core.getInput("architecture") || os.arch();
   const pdmVersion = core.getInput("version");
-  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
+  const ref = core.getInput("ref");
+  const pdmPackage = pdmVersion
+    ? `pdm==${pdmVersion}`
+    : ref
+    ? `pdm @ git+${GITHUB_REPO}@${ref}`
+    : "pdm";
   const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
   if (core.getInput("prerelease") === "true") {
     cmdArgs.push("--pre");
