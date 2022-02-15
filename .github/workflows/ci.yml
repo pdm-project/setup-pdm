@@ -7,8 +7,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.10"]
-        os: ["windows-latest"]
+        python-version: [3.7, 3.8, 3.9, "3.10"]
+        os: ["windows-latest", "ubuntu-latest"]
     name: Test the action
     steps:
       - uses: actions/checkout@v2
@@ -16,13 +16,6 @@ jobs:
         uses: ./
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ failure() }}
-        with:
-          limit-access-to-actor: true
-          sudo: false
 
       - name: Install dependencies
         run: pdm install -v
