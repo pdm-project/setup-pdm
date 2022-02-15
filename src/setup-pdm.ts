@@ -4,6 +4,7 @@ import * as setupPython from "setup-python/src/find-python";
 import { IS_WINDOWS } from "setup-python/src/utils";
 import * as os from "os";
 import { exec as execChild } from "child_process";
+import { promises as fs } from "fs";
 import path from "path";
 
 const INSTALL_VERSION = "3.8";
@@ -51,11 +52,13 @@ async function run(): Promise<void> {
         arch
       );
     }
-    const pythonBin = path.join(
-      process.env.pythonLocation as string,
-      IS_WINDOWS ? "python.exe" : "bin/python"
-    );
-    await exec.exec("pdm", ["config", "-l", "python.path", pythonBin]);
+    const pythonBin = path
+      .join(
+        process.env.pythonLocation as string,
+        IS_WINDOWS ? "python.exe" : "bin/python"
+      )
+      .replace(/\\/g, "/");
+    await fs.writeFile(".pdm.toml", `[python]\npath="${pythonBin}"\n`);
     const pdmVersionOutput = (await execChild("pdm --version")).stdout;
     if (process.platform === "linux") {
       // See https://github.com/actions/virtual-environments/issues/2803

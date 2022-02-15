@@ -16,7 +16,6 @@ jobs:
         uses: ./
         with:
           python-version: ${{ matrix.python-version }}
-          ref: ca2b0df71e27f407cc10a6915d5b3d60cf3bec75
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3

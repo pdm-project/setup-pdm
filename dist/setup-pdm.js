@@ -172,7 +172,7 @@ var require_file_command = __commonJS((exports2) => {
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
   exports2.issueCommand = void 0;
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var os3 = __importStar(require("os"));
   var utils_1 = require_utils();
   function issueCommand(command, message) {
@@ -180,10 +180,10 @@ var require_file_command = __commonJS((exports2) => {
     if (!filePath) {
       throw new Error(`Unable to find environment variable for file command ${command}`);
     }
-    if (!fs2.existsSync(filePath)) {
+    if (!fs3.existsSync(filePath)) {
       throw new Error(`Missing file at path: ${filePath}`);
     }
-    fs2.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
+    fs3.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
       encoding: "utf8"
     });
   }
@@ -1340,9 +1340,9 @@ var require_io_util = __commonJS((exports2) => {
   var _a;
   Object.defineProperty(exports2, "__esModule", {value: true});
   exports2.getCmdPath = exports2.tryGetExecutablePath = exports2.isRooted = exports2.isDirectory = exports2.exists = exports2.IS_WINDOWS = exports2.unlink = exports2.symlink = exports2.stat = exports2.rmdir = exports2.rename = exports2.readlink = exports2.readdir = exports2.mkdir = exports2.lstat = exports2.copyFile = exports2.chmod = void 0;
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var path5 = __importStar(require("path"));
-  _a = fs2.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
+  _a = fs3.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
   exports2.IS_WINDOWS = process.platform === "win32";
   function exists(fsPath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -5686,7 +5686,7 @@ var require_manifest = __commonJS((exports2, module2) => {
   var core_1 = require_core();
   var os3 = require("os");
   var cp = require("child_process");
-  var fs2 = require("fs");
+  var fs3 = require("fs");
   function _findMatch(versionSpec, stable, candidates, archFilter) {
     return __awaiter(this, void 0, void 0, function* () {
       const platFilter = os3.platform();
@@ -5750,10 +5750,10 @@ var require_manifest = __commonJS((exports2, module2) => {
     const lsbReleaseFile = "/etc/lsb-release";
     const osReleaseFile = "/etc/os-release";
     let contents = "";
-    if (fs2.existsSync(lsbReleaseFile)) {
-      contents = fs2.readFileSync(lsbReleaseFile).toString();
-    } else if (fs2.existsSync(osReleaseFile)) {
-      contents = fs2.readFileSync(osReleaseFile).toString();
+    if (fs3.existsSync(lsbReleaseFile)) {
+      contents = fs3.readFileSync(lsbReleaseFile).toString();
+    } else if (fs3.existsSync(osReleaseFile)) {
+      contents = fs3.readFileSync(osReleaseFile).toString();
     }
     return contents;
   }
@@ -5997,7 +5997,7 @@ var require_tool_cache = __commonJS((exports2) => {
   exports2.evaluateVersions = exports2.isExplicitVersion = exports2.findFromManifest = exports2.getManifestFromRepo = exports2.findAllVersions = exports2.find = exports2.cacheFile = exports2.cacheDir = exports2.extractZip = exports2.extractXar = exports2.extractTar = exports2.extract7z = exports2.downloadTool = exports2.HTTPError = void 0;
   var core4 = __importStar(require_core());
   var io = __importStar(require_io());
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var mm = __importStar(require_manifest());
   var os3 = __importStar(require("os"));
   var path5 = __importStar(require("path"));
@@ -6045,7 +6045,7 @@ var require_tool_cache = __commonJS((exports2) => {
   exports2.downloadTool = downloadTool2;
   function downloadToolAttempt(url, dest, auth, headers) {
     return __awaiter(this, void 0, void 0, function* () {
-      if (fs2.existsSync(dest)) {
+      if (fs3.existsSync(dest)) {
         throw new Error(`Destination file path ${dest} already exists`);
       }
       const http = new httpm.HttpClient(userAgent, [], {
@@ -6069,7 +6069,7 @@ var require_tool_cache = __commonJS((exports2) => {
       const readStream = responseMessageFactory();
       let succeeded = false;
       try {
-        yield pipeline(readStream, fs2.createWriteStream(dest));
+        yield pipeline(readStream, fs3.createWriteStream(dest));
         core4.debug("download complete");
         succeeded = true;
         return dest;
@@ -6281,11 +6281,11 @@ var require_tool_cache = __commonJS((exports2) => {
       arch2 = arch2 || os3.arch();
       core4.debug(`Caching tool ${tool} ${version} ${arch2}`);
       core4.debug(`source dir: ${sourceDir}`);
-      if (!fs2.statSync(sourceDir).isDirectory()) {
+      if (!fs3.statSync(sourceDir).isDirectory()) {
         throw new Error("sourceDir is not a directory");
       }
       const destPath = yield _createToolPath(tool, version, arch2);
-      for (const itemName of fs2.readdirSync(sourceDir)) {
+      for (const itemName of fs3.readdirSync(sourceDir)) {
         const s = path5.join(sourceDir, itemName);
         yield io.cp(s, destPath, {recursive: true});
       }
@@ -6300,7 +6300,7 @@ var require_tool_cache = __commonJS((exports2) => {
       arch2 = arch2 || os3.arch();
       core4.debug(`Caching tool ${tool} ${version} ${arch2}`);
       core4.debug(`source file: ${sourceFile}`);
-      if (!fs2.statSync(sourceFile).isFile()) {
+      if (!fs3.statSync(sourceFile).isFile()) {
         throw new Error("sourceFile is not a file");
       }
       const destFolder = yield _createToolPath(tool, version, arch2);
@@ -6330,7 +6330,7 @@ var require_tool_cache = __commonJS((exports2) => {
       versionSpec = semver3.clean(versionSpec) || "";
       const cachePath = path5.join(_getCacheDirectory(), toolName, versionSpec, arch2);
       core4.debug(`checking cache: ${cachePath}`);
-      if (fs2.existsSync(cachePath) && fs2.existsSync(`${cachePath}.complete`)) {
+      if (fs3.existsSync(cachePath) && fs3.existsSync(`${cachePath}.complete`)) {
         core4.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch2}`);
         toolPath = cachePath;
       } else {
@@ -6344,12 +6344,12 @@ var require_tool_cache = __commonJS((exports2) => {
     const versions = [];
     arch2 = arch2 || os3.arch();
     const toolPath = path5.join(_getCacheDirectory(), toolName);
-    if (fs2.existsSync(toolPath)) {
-      const children = fs2.readdirSync(toolPath);
+    if (fs3.existsSync(toolPath)) {
+      const children = fs3.readdirSync(toolPath);
       for (const child of children) {
         if (isExplicitVersion(child)) {
           const fullPath = path5.join(toolPath, child, arch2 || "");
-          if (fs2.existsSync(fullPath) && fs2.existsSync(`${fullPath}.complete`)) {
+          if (fs3.existsSync(fullPath) && fs3.existsSync(`${fullPath}.complete`)) {
             versions.push(child);
           }
         }
@@ -6423,7 +6423,7 @@ var require_tool_cache = __commonJS((exports2) => {
   function _completeToolPath(tool, version, arch2) {
     const folderPath = path5.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
     const markerPath = `${folderPath}.complete`;
-    fs2.writeFileSync(markerPath, "");
+    fs3.writeFileSync(markerPath, "");
     core4.debug("finished caching tool");
   }
   function isExplicitVersion(versionSpec) {
@@ -6656,6 +6656,7 @@ async function findPythonVersion(version, architecture) {
 // src/setup-pdm.ts
 var os2 = __toModule(require("os"));
 var import_child_process = __toModule(require("child_process"));
+var import_fs2 = __toModule(require("fs"));
 var import_path = __toModule(require("path"));
 var INSTALL_VERSION = "3.8";
 var GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
@@ -6685,8 +6686,10 @@ async function run() {
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
-    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "python.exe" : "bin/python");
-    await exec3.exec("pdm", ["config", "-l", "python.path", pythonBin]);
+    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "python.exe" : "bin/python").replace(/\\/g, "/");
+    await import_fs2.promises.writeFile(".pdm.toml", `[python]
+path="${pythonBin}"
+`);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
