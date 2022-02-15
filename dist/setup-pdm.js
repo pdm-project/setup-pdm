@@ -44,6 +44,7 @@ var require_utils = __commonJS((exports2) => {
     }
     return {
       title: annotationProperties.title,
+      file: annotationProperties.file,
       line: annotationProperties.startLine,
       endLine: annotationProperties.endLine,
       col: annotationProperties.startColumn,
@@ -171,7 +172,7 @@ var require_file_command = __commonJS((exports2) => {
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
   exports2.issueCommand = void 0;
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var os3 = __importStar(require("os"));
   var utils_1 = require_utils();
   function issueCommand(command, message) {
@@ -179,14 +180,902 @@ var require_file_command = __commonJS((exports2) => {
     if (!filePath) {
       throw new Error(`Unable to find environment variable for file command ${command}`);
     }
-    if (!fs2.existsSync(filePath)) {
+    if (!fs3.existsSync(filePath)) {
       throw new Error(`Missing file at path: ${filePath}`);
     }
-    fs2.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
+    fs3.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
       encoding: "utf8"
     });
   }
   exports2.issueCommand = issueCommand;
+});
+
+// node_modules/@actions/http-client/proxy.js
+var require_proxy = __commonJS((exports2) => {
+  "use strict";
+  Object.defineProperty(exports2, "__esModule", {value: true});
+  function getProxyUrl(reqUrl) {
+    let usingSsl = reqUrl.protocol === "https:";
+    let proxyUrl;
+    if (checkBypass(reqUrl)) {
+      return proxyUrl;
+    }
+    let proxyVar;
+    if (usingSsl) {
+      proxyVar = process.env["https_proxy"] || process.env["HTTPS_PROXY"];
+    } else {
+      proxyVar = process.env["http_proxy"] || process.env["HTTP_PROXY"];
+    }
+    if (proxyVar) {
+      proxyUrl = new URL(proxyVar);
+    }
+    return proxyUrl;
+  }
+  exports2.getProxyUrl = getProxyUrl;
+  function checkBypass(reqUrl) {
+    if (!reqUrl.hostname) {
+      return false;
+    }
+    let noProxy = process.env["no_proxy"] || process.env["NO_PROXY"] || "";
+    if (!noProxy) {
+      return false;
+    }
+    let reqPort;
+    if (reqUrl.port) {
+      reqPort = Number(reqUrl.port);
+    } else if (reqUrl.protocol === "http:") {
+      reqPort = 80;
+    } else if (reqUrl.protocol === "https:") {
+      reqPort = 443;
+    }
+    let upperReqHosts = [reqUrl.hostname.toUpperCase()];
+    if (typeof reqPort === "number") {
+      upperReqHosts.push(`${upperReqHosts[0]}:${reqPort}`);
+    }
+    for (let upperNoProxyItem of noProxy.split(",").map((x) => x.trim().toUpperCase()).filter((x) => x)) {
+      if (upperReqHosts.some((x) => x === upperNoProxyItem)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  exports2.checkBypass = checkBypass;
+});
+
+// node_modules/tunnel/lib/tunnel.js
+var require_tunnel = __commonJS((exports2) => {
+  "use strict";
+  var net = require("net");
+  var tls = require("tls");
+  var http = require("http");
+  var https = require("https");
+  var events = require("events");
+  var assert = require("assert");
+  var util = require("util");
+  exports2.httpOverHttp = httpOverHttp;
+  exports2.httpsOverHttp = httpsOverHttp;
+  exports2.httpOverHttps = httpOverHttps;
+  exports2.httpsOverHttps = httpsOverHttps;
+  function httpOverHttp(options) {
+    var agent = new TunnelingAgent(options);
+    agent.request = http.request;
+    return agent;
+  }
+  function httpsOverHttp(options) {
+    var agent = new TunnelingAgent(options);
+    agent.request = http.request;
+    agent.createSocket = createSecureSocket;
+    agent.defaultPort = 443;
+    return agent;
+  }
+  function httpOverHttps(options) {
+    var agent = new TunnelingAgent(options);
+    agent.request = https.request;
+    return agent;
+  }
+  function httpsOverHttps(options) {
+    var agent = new TunnelingAgent(options);
+    agent.request = https.request;
+    agent.createSocket = createSecureSocket;
+    agent.defaultPort = 443;
+    return agent;
+  }
+  function TunnelingAgent(options) {
+    var self = this;
+    self.options = options || {};
+    self.proxyOptions = self.options.proxy || {};
+    self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
+    self.requests = [];
+    self.sockets = [];
+    self.on("free", function onFree(socket, host, port, localAddress) {
+      var options2 = toOptions(host, port, localAddress);
+      for (var i = 0, len = self.requests.length; i < len; ++i) {
+        var pending = self.requests[i];
+        if (pending.host === options2.host && pending.port === options2.port) {
+          self.requests.splice(i, 1);
+          pending.request.onSocket(socket);
+          return;
+        }
+      }
+      socket.destroy();
+      self.removeSocket(socket);
+    });
+  }
+  util.inherits(TunnelingAgent, events.EventEmitter);
+  TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
+    var self = this;
+    var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
+    if (self.sockets.length >= this.maxSockets) {
+      self.requests.push(options);
+      return;
+    }
+    self.createSocket(options, function(socket) {
+      socket.on("free", onFree);
+      socket.on("close", onCloseOrRemove);
+      socket.on("agentRemove", onCloseOrRemove);
+      req.onSocket(socket);
+      function onFree() {
+        self.emit("free", socket, options);
+      }
+      function onCloseOrRemove(err) {
+        self.removeSocket(socket);
+        socket.removeListener("free", onFree);
+        socket.removeListener("close", onCloseOrRemove);
+        socket.removeListener("agentRemove", onCloseOrRemove);
+      }
+    });
+  };
+  TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
+    var self = this;
+    var placeholder = {};
+    self.sockets.push(placeholder);
+    var connectOptions = mergeOptions({}, self.proxyOptions, {
+      method: "CONNECT",
+      path: options.host + ":" + options.port,
+      agent: false,
+      headers: {
+        host: options.host + ":" + options.port
+      }
+    });
+    if (options.localAddress) {
+      connectOptions.localAddress = options.localAddress;
+    }
+    if (connectOptions.proxyAuth) {
+      connectOptions.headers = connectOptions.headers || {};
+      connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
+    }
+    debug2("making CONNECT request");
+    var connectReq = self.request(connectOptions);
+    connectReq.useChunkedEncodingByDefault = false;
+    connectReq.once("response", onResponse);
+    connectReq.once("upgrade", onUpgrade);
+    connectReq.once("connect", onConnect);
+    connectReq.once("error", onError);
+    connectReq.end();
+    function onResponse(res) {
+      res.upgrade = true;
+    }
+    function onUpgrade(res, socket, head) {
+      process.nextTick(function() {
+        onConnect(res, socket, head);
+      });
+    }
+    function onConnect(res, socket, head) {
+      connectReq.removeAllListeners();
+      socket.removeAllListeners();
+      if (res.statusCode !== 200) {
+        debug2("tunneling socket could not be established, statusCode=%d", res.statusCode);
+        socket.destroy();
+        var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
+        error2.code = "ECONNRESET";
+        options.request.emit("error", error2);
+        self.removeSocket(placeholder);
+        return;
+      }
+      if (head.length > 0) {
+        debug2("got illegal response body from proxy");
+        socket.destroy();
+        var error2 = new Error("got illegal response body from proxy");
+        error2.code = "ECONNRESET";
+        options.request.emit("error", error2);
+        self.removeSocket(placeholder);
+        return;
+      }
+      debug2("tunneling connection has established");
+      self.sockets[self.sockets.indexOf(placeholder)] = socket;
+      return cb(socket);
+    }
+    function onError(cause) {
+      connectReq.removeAllListeners();
+      debug2("tunneling socket could not be established, cause=%s\n", cause.message, cause.stack);
+      var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
+      error2.code = "ECONNRESET";
+      options.request.emit("error", error2);
+      self.removeSocket(placeholder);
+    }
+  };
+  TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
+    var pos = this.sockets.indexOf(socket);
+    if (pos === -1) {
+      return;
+    }
+    this.sockets.splice(pos, 1);
+    var pending = this.requests.shift();
+    if (pending) {
+      this.createSocket(pending, function(socket2) {
+        pending.request.onSocket(socket2);
+      });
+    }
+  };
+  function createSecureSocket(options, cb) {
+    var self = this;
+    TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
+      var hostHeader = options.request.getHeader("host");
+      var tlsOptions = mergeOptions({}, self.options, {
+        socket,
+        servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
+      });
+      var secureSocket = tls.connect(0, tlsOptions);
+      self.sockets[self.sockets.indexOf(socket)] = secureSocket;
+      cb(secureSocket);
+    });
+  }
+  function toOptions(host, port, localAddress) {
+    if (typeof host === "string") {
+      return {
+        host,
+        port,
+        localAddress
+      };
+    }
+    return host;
+  }
+  function mergeOptions(target) {
+    for (var i = 1, len = arguments.length; i < len; ++i) {
+      var overrides = arguments[i];
+      if (typeof overrides === "object") {
+        var keys = Object.keys(overrides);
+        for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
+          var k = keys[j];
+          if (overrides[k] !== void 0) {
+            target[k] = overrides[k];
+          }
+        }
+      }
+    }
+    return target;
+  }
+  var debug2;
+  if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
+    debug2 = function() {
+      var args = Array.prototype.slice.call(arguments);
+      if (typeof args[0] === "string") {
+        args[0] = "TUNNEL: " + args[0];
+      } else {
+        args.unshift("TUNNEL:");
+      }
+      console.error.apply(console, args);
+    };
+  } else {
+    debug2 = function() {
+    };
+  }
+  exports2.debug = debug2;
+});
+
+// node_modules/tunnel/index.js
+var require_tunnel2 = __commonJS((exports2, module2) => {
+  module2.exports = require_tunnel();
+});
+
+// node_modules/@actions/http-client/index.js
+var require_http_client = __commonJS((exports2) => {
+  "use strict";
+  Object.defineProperty(exports2, "__esModule", {value: true});
+  var http = require("http");
+  var https = require("https");
+  var pm = require_proxy();
+  var tunnel;
+  var HttpCodes;
+  (function(HttpCodes2) {
+    HttpCodes2[HttpCodes2["OK"] = 200] = "OK";
+    HttpCodes2[HttpCodes2["MultipleChoices"] = 300] = "MultipleChoices";
+    HttpCodes2[HttpCodes2["MovedPermanently"] = 301] = "MovedPermanently";
+    HttpCodes2[HttpCodes2["ResourceMoved"] = 302] = "ResourceMoved";
+    HttpCodes2[HttpCodes2["SeeOther"] = 303] = "SeeOther";
+    HttpCodes2[HttpCodes2["NotModified"] = 304] = "NotModified";
+    HttpCodes2[HttpCodes2["UseProxy"] = 305] = "UseProxy";
+    HttpCodes2[HttpCodes2["SwitchProxy"] = 306] = "SwitchProxy";
+    HttpCodes2[HttpCodes2["TemporaryRedirect"] = 307] = "TemporaryRedirect";
+    HttpCodes2[HttpCodes2["PermanentRedirect"] = 308] = "PermanentRedirect";
+    HttpCodes2[HttpCodes2["BadRequest"] = 400] = "BadRequest";
+    HttpCodes2[HttpCodes2["Unauthorized"] = 401] = "Unauthorized";
+    HttpCodes2[HttpCodes2["PaymentRequired"] = 402] = "PaymentRequired";
+    HttpCodes2[HttpCodes2["Forbidden"] = 403] = "Forbidden";
+    HttpCodes2[HttpCodes2["NotFound"] = 404] = "NotFound";
+    HttpCodes2[HttpCodes2["MethodNotAllowed"] = 405] = "MethodNotAllowed";
+    HttpCodes2[HttpCodes2["NotAcceptable"] = 406] = "NotAcceptable";
+    HttpCodes2[HttpCodes2["ProxyAuthenticationRequired"] = 407] = "ProxyAuthenticationRequired";
+    HttpCodes2[HttpCodes2["RequestTimeout"] = 408] = "RequestTimeout";
+    HttpCodes2[HttpCodes2["Conflict"] = 409] = "Conflict";
+    HttpCodes2[HttpCodes2["Gone"] = 410] = "Gone";
+    HttpCodes2[HttpCodes2["TooManyRequests"] = 429] = "TooManyRequests";
+    HttpCodes2[HttpCodes2["InternalServerError"] = 500] = "InternalServerError";
+    HttpCodes2[HttpCodes2["NotImplemented"] = 501] = "NotImplemented";
+    HttpCodes2[HttpCodes2["BadGateway"] = 502] = "BadGateway";
+    HttpCodes2[HttpCodes2["ServiceUnavailable"] = 503] = "ServiceUnavailable";
+    HttpCodes2[HttpCodes2["GatewayTimeout"] = 504] = "GatewayTimeout";
+  })(HttpCodes = exports2.HttpCodes || (exports2.HttpCodes = {}));
+  var Headers;
+  (function(Headers2) {
+    Headers2["Accept"] = "accept";
+    Headers2["ContentType"] = "content-type";
+  })(Headers = exports2.Headers || (exports2.Headers = {}));
+  var MediaTypes;
+  (function(MediaTypes2) {
+    MediaTypes2["ApplicationJson"] = "application/json";
+  })(MediaTypes = exports2.MediaTypes || (exports2.MediaTypes = {}));
+  function getProxyUrl(serverUrl) {
+    let proxyUrl = pm.getProxyUrl(new URL(serverUrl));
+    return proxyUrl ? proxyUrl.href : "";
+  }
+  exports2.getProxyUrl = getProxyUrl;
+  var HttpRedirectCodes = [
+    HttpCodes.MovedPermanently,
+    HttpCodes.ResourceMoved,
+    HttpCodes.SeeOther,
+    HttpCodes.TemporaryRedirect,
+    HttpCodes.PermanentRedirect
+  ];
+  var HttpResponseRetryCodes = [
+    HttpCodes.BadGateway,
+    HttpCodes.ServiceUnavailable,
+    HttpCodes.GatewayTimeout
+  ];
+  var RetryableHttpVerbs = ["OPTIONS", "GET", "DELETE", "HEAD"];
+  var ExponentialBackoffCeiling = 10;
+  var ExponentialBackoffTimeSlice = 5;
+  var HttpClientError = class extends Error {
+    constructor(message, statusCode) {
+      super(message);
+      this.name = "HttpClientError";
+      this.statusCode = statusCode;
+      Object.setPrototypeOf(this, HttpClientError.prototype);
+    }
+  };
+  exports2.HttpClientError = HttpClientError;
+  var HttpClientResponse = class {
+    constructor(message) {
+      this.message = message;
+    }
+    readBody() {
+      return new Promise(async (resolve, reject) => {
+        let output = Buffer.alloc(0);
+        this.message.on("data", (chunk) => {
+          output = Buffer.concat([output, chunk]);
+        });
+        this.message.on("end", () => {
+          resolve(output.toString());
+        });
+      });
+    }
+  };
+  exports2.HttpClientResponse = HttpClientResponse;
+  function isHttps(requestUrl) {
+    let parsedUrl = new URL(requestUrl);
+    return parsedUrl.protocol === "https:";
+  }
+  exports2.isHttps = isHttps;
+  var HttpClient = class {
+    constructor(userAgent, handlers, requestOptions) {
+      this._ignoreSslError = false;
+      this._allowRedirects = true;
+      this._allowRedirectDowngrade = false;
+      this._maxRedirects = 50;
+      this._allowRetries = false;
+      this._maxRetries = 1;
+      this._keepAlive = false;
+      this._disposed = false;
+      this.userAgent = userAgent;
+      this.handlers = handlers || [];
+      this.requestOptions = requestOptions;
+      if (requestOptions) {
+        if (requestOptions.ignoreSslError != null) {
+          this._ignoreSslError = requestOptions.ignoreSslError;
+        }
+        this._socketTimeout = requestOptions.socketTimeout;
+        if (requestOptions.allowRedirects != null) {
+          this._allowRedirects = requestOptions.allowRedirects;
+        }
+        if (requestOptions.allowRedirectDowngrade != null) {
+          this._allowRedirectDowngrade = requestOptions.allowRedirectDowngrade;
+        }
+        if (requestOptions.maxRedirects != null) {
+          this._maxRedirects = Math.max(requestOptions.maxRedirects, 0);
+        }
+        if (requestOptions.keepAlive != null) {
+          this._keepAlive = requestOptions.keepAlive;
+        }
+        if (requestOptions.allowRetries != null) {
+          this._allowRetries = requestOptions.allowRetries;
+        }
+        if (requestOptions.maxRetries != null) {
+          this._maxRetries = requestOptions.maxRetries;
+        }
+      }
+    }
+    options(requestUrl, additionalHeaders) {
+      return this.request("OPTIONS", requestUrl, null, additionalHeaders || {});
+    }
+    get(requestUrl, additionalHeaders) {
+      return this.request("GET", requestUrl, null, additionalHeaders || {});
+    }
+    del(requestUrl, additionalHeaders) {
+      return this.request("DELETE", requestUrl, null, additionalHeaders || {});
+    }
+    post(requestUrl, data, additionalHeaders) {
+      return this.request("POST", requestUrl, data, additionalHeaders || {});
+    }
+    patch(requestUrl, data, additionalHeaders) {
+      return this.request("PATCH", requestUrl, data, additionalHeaders || {});
+    }
+    put(requestUrl, data, additionalHeaders) {
+      return this.request("PUT", requestUrl, data, additionalHeaders || {});
+    }
+    head(requestUrl, additionalHeaders) {
+      return this.request("HEAD", requestUrl, null, additionalHeaders || {});
+    }
+    sendStream(verb, requestUrl, stream, additionalHeaders) {
+      return this.request(verb, requestUrl, stream, additionalHeaders);
+    }
+    async getJson(requestUrl, additionalHeaders = {}) {
+      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+      let res = await this.get(requestUrl, additionalHeaders);
+      return this._processResponse(res, this.requestOptions);
+    }
+    async postJson(requestUrl, obj, additionalHeaders = {}) {
+      let data = JSON.stringify(obj, null, 2);
+      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+      let res = await this.post(requestUrl, data, additionalHeaders);
+      return this._processResponse(res, this.requestOptions);
+    }
+    async putJson(requestUrl, obj, additionalHeaders = {}) {
+      let data = JSON.stringify(obj, null, 2);
+      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+      let res = await this.put(requestUrl, data, additionalHeaders);
+      return this._processResponse(res, this.requestOptions);
+    }
+    async patchJson(requestUrl, obj, additionalHeaders = {}) {
+      let data = JSON.stringify(obj, null, 2);
+      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
+      let res = await this.patch(requestUrl, data, additionalHeaders);
+      return this._processResponse(res, this.requestOptions);
+    }
+    async request(verb, requestUrl, data, headers) {
+      if (this._disposed) {
+        throw new Error("Client has already been disposed.");
+      }
+      let parsedUrl = new URL(requestUrl);
+      let info4 = this._prepareRequest(verb, parsedUrl, headers);
+      let maxTries = this._allowRetries && RetryableHttpVerbs.indexOf(verb) != -1 ? this._maxRetries + 1 : 1;
+      let numTries = 0;
+      let response;
+      while (numTries < maxTries) {
+        response = await this.requestRaw(info4, data);
+        if (response && response.message && response.message.statusCode === HttpCodes.Unauthorized) {
+          let authenticationHandler;
+          for (let i = 0; i < this.handlers.length; i++) {
+            if (this.handlers[i].canHandleAuthentication(response)) {
+              authenticationHandler = this.handlers[i];
+              break;
+            }
+          }
+          if (authenticationHandler) {
+            return authenticationHandler.handleAuthentication(this, info4, data);
+          } else {
+            return response;
+          }
+        }
+        let redirectsRemaining = this._maxRedirects;
+        while (HttpRedirectCodes.indexOf(response.message.statusCode) != -1 && this._allowRedirects && redirectsRemaining > 0) {
+          const redirectUrl = response.message.headers["location"];
+          if (!redirectUrl) {
+            break;
+          }
+          let parsedRedirectUrl = new URL(redirectUrl);
+          if (parsedUrl.protocol == "https:" && parsedUrl.protocol != parsedRedirectUrl.protocol && !this._allowRedirectDowngrade) {
+            throw new Error("Redirect from HTTPS to HTTP protocol. This downgrade is not allowed for security reasons. If you want to allow this behavior, set the allowRedirectDowngrade option to true.");
+          }
+          await response.readBody();
+          if (parsedRedirectUrl.hostname !== parsedUrl.hostname) {
+            for (let header in headers) {
+              if (header.toLowerCase() === "authorization") {
+                delete headers[header];
+              }
+            }
+          }
+          info4 = this._prepareRequest(verb, parsedRedirectUrl, headers);
+          response = await this.requestRaw(info4, data);
+          redirectsRemaining--;
+        }
+        if (HttpResponseRetryCodes.indexOf(response.message.statusCode) == -1) {
+          return response;
+        }
+        numTries += 1;
+        if (numTries < maxTries) {
+          await response.readBody();
+          await this._performExponentialBackoff(numTries);
+        }
+      }
+      return response;
+    }
+    dispose() {
+      if (this._agent) {
+        this._agent.destroy();
+      }
+      this._disposed = true;
+    }
+    requestRaw(info4, data) {
+      return new Promise((resolve, reject) => {
+        let callbackForResult = function(err, res) {
+          if (err) {
+            reject(err);
+          }
+          resolve(res);
+        };
+        this.requestRawWithCallback(info4, data, callbackForResult);
+      });
+    }
+    requestRawWithCallback(info4, data, onResult) {
+      let socket;
+      if (typeof data === "string") {
+        info4.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
+      }
+      let callbackCalled = false;
+      let handleResult = (err, res) => {
+        if (!callbackCalled) {
+          callbackCalled = true;
+          onResult(err, res);
+        }
+      };
+      let req = info4.httpModule.request(info4.options, (msg) => {
+        let res = new HttpClientResponse(msg);
+        handleResult(null, res);
+      });
+      req.on("socket", (sock) => {
+        socket = sock;
+      });
+      req.setTimeout(this._socketTimeout || 3 * 6e4, () => {
+        if (socket) {
+          socket.end();
+        }
+        handleResult(new Error("Request timeout: " + info4.options.path), null);
+      });
+      req.on("error", function(err) {
+        handleResult(err, null);
+      });
+      if (data && typeof data === "string") {
+        req.write(data, "utf8");
+      }
+      if (data && typeof data !== "string") {
+        data.on("close", function() {
+          req.end();
+        });
+        data.pipe(req);
+      } else {
+        req.end();
+      }
+    }
+    getAgent(serverUrl) {
+      let parsedUrl = new URL(serverUrl);
+      return this._getAgent(parsedUrl);
+    }
+    _prepareRequest(method, requestUrl, headers) {
+      const info4 = {};
+      info4.parsedUrl = requestUrl;
+      const usingSsl = info4.parsedUrl.protocol === "https:";
+      info4.httpModule = usingSsl ? https : http;
+      const defaultPort = usingSsl ? 443 : 80;
+      info4.options = {};
+      info4.options.host = info4.parsedUrl.hostname;
+      info4.options.port = info4.parsedUrl.port ? parseInt(info4.parsedUrl.port) : defaultPort;
+      info4.options.path = (info4.parsedUrl.pathname || "") + (info4.parsedUrl.search || "");
+      info4.options.method = method;
+      info4.options.headers = this._mergeHeaders(headers);
+      if (this.userAgent != null) {
+        info4.options.headers["user-agent"] = this.userAgent;
+      }
+      info4.options.agent = this._getAgent(info4.parsedUrl);
+      if (this.handlers) {
+        this.handlers.forEach((handler) => {
+          handler.prepareRequest(info4.options);
+        });
+      }
+      return info4;
+    }
+    _mergeHeaders(headers) {
+      const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => (c[k.toLowerCase()] = obj[k], c), {});
+      if (this.requestOptions && this.requestOptions.headers) {
+        return Object.assign({}, lowercaseKeys(this.requestOptions.headers), lowercaseKeys(headers));
+      }
+      return lowercaseKeys(headers || {});
+    }
+    _getExistingOrDefaultHeader(additionalHeaders, header, _default) {
+      const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => (c[k.toLowerCase()] = obj[k], c), {});
+      let clientHeader;
+      if (this.requestOptions && this.requestOptions.headers) {
+        clientHeader = lowercaseKeys(this.requestOptions.headers)[header];
+      }
+      return additionalHeaders[header] || clientHeader || _default;
+    }
+    _getAgent(parsedUrl) {
+      let agent;
+      let proxyUrl = pm.getProxyUrl(parsedUrl);
+      let useProxy = proxyUrl && proxyUrl.hostname;
+      if (this._keepAlive && useProxy) {
+        agent = this._proxyAgent;
+      }
+      if (this._keepAlive && !useProxy) {
+        agent = this._agent;
+      }
+      if (!!agent) {
+        return agent;
+      }
+      const usingSsl = parsedUrl.protocol === "https:";
+      let maxSockets = 100;
+      if (!!this.requestOptions) {
+        maxSockets = this.requestOptions.maxSockets || http.globalAgent.maxSockets;
+      }
+      if (useProxy) {
+        if (!tunnel) {
+          tunnel = require_tunnel2();
+        }
+        const agentOptions = {
+          maxSockets,
+          keepAlive: this._keepAlive,
+          proxy: {
+            ...(proxyUrl.username || proxyUrl.password) && {
+              proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`
+            },
+            host: proxyUrl.hostname,
+            port: proxyUrl.port
+          }
+        };
+        let tunnelAgent;
+        const overHttps = proxyUrl.protocol === "https:";
+        if (usingSsl) {
+          tunnelAgent = overHttps ? tunnel.httpsOverHttps : tunnel.httpsOverHttp;
+        } else {
+          tunnelAgent = overHttps ? tunnel.httpOverHttps : tunnel.httpOverHttp;
+        }
+        agent = tunnelAgent(agentOptions);
+        this._proxyAgent = agent;
+      }
+      if (this._keepAlive && !agent) {
+        const options = {keepAlive: this._keepAlive, maxSockets};
+        agent = usingSsl ? new https.Agent(options) : new http.Agent(options);
+        this._agent = agent;
+      }
+      if (!agent) {
+        agent = usingSsl ? https.globalAgent : http.globalAgent;
+      }
+      if (usingSsl && this._ignoreSslError) {
+        agent.options = Object.assign(agent.options || {}, {
+          rejectUnauthorized: false
+        });
+      }
+      return agent;
+    }
+    _performExponentialBackoff(retryNumber) {
+      retryNumber = Math.min(ExponentialBackoffCeiling, retryNumber);
+      const ms = ExponentialBackoffTimeSlice * Math.pow(2, retryNumber);
+      return new Promise((resolve) => setTimeout(() => resolve(), ms));
+    }
+    static dateTimeDeserializer(key, value) {
+      if (typeof value === "string") {
+        let a = new Date(value);
+        if (!isNaN(a.valueOf())) {
+          return a;
+        }
+      }
+      return value;
+    }
+    async _processResponse(res, options) {
+      return new Promise(async (resolve, reject) => {
+        const statusCode = res.message.statusCode;
+        const response = {
+          statusCode,
+          result: null,
+          headers: {}
+        };
+        if (statusCode == HttpCodes.NotFound) {
+          resolve(response);
+        }
+        let obj;
+        let contents;
+        try {
+          contents = await res.readBody();
+          if (contents && contents.length > 0) {
+            if (options && options.deserializeDates) {
+              obj = JSON.parse(contents, HttpClient.dateTimeDeserializer);
+            } else {
+              obj = JSON.parse(contents);
+            }
+            response.result = obj;
+          }
+          response.headers = res.message.headers;
+        } catch (err) {
+        }
+        if (statusCode > 299) {
+          let msg;
+          if (obj && obj.message) {
+            msg = obj.message;
+          } else if (contents && contents.length > 0) {
+            msg = contents;
+          } else {
+            msg = "Failed request: (" + statusCode + ")";
+          }
+          let err = new HttpClientError(msg, statusCode);
+          err.result = response.result;
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
+    }
+  };
+  exports2.HttpClient = HttpClient;
+});
+
+// node_modules/@actions/http-client/auth.js
+var require_auth = __commonJS((exports2) => {
+  "use strict";
+  Object.defineProperty(exports2, "__esModule", {value: true});
+  var BasicCredentialHandler = class {
+    constructor(username, password) {
+      this.username = username;
+      this.password = password;
+    }
+    prepareRequest(options) {
+      options.headers["Authorization"] = "Basic " + Buffer.from(this.username + ":" + this.password).toString("base64");
+    }
+    canHandleAuthentication(response) {
+      return false;
+    }
+    handleAuthentication(httpClient, requestInfo, objs) {
+      return null;
+    }
+  };
+  exports2.BasicCredentialHandler = BasicCredentialHandler;
+  var BearerCredentialHandler = class {
+    constructor(token) {
+      this.token = token;
+    }
+    prepareRequest(options) {
+      options.headers["Authorization"] = "Bearer " + this.token;
+    }
+    canHandleAuthentication(response) {
+      return false;
+    }
+    handleAuthentication(httpClient, requestInfo, objs) {
+      return null;
+    }
+  };
+  exports2.BearerCredentialHandler = BearerCredentialHandler;
+  var PersonalAccessTokenCredentialHandler = class {
+    constructor(token) {
+      this.token = token;
+    }
+    prepareRequest(options) {
+      options.headers["Authorization"] = "Basic " + Buffer.from("PAT:" + this.token).toString("base64");
+    }
+    canHandleAuthentication(response) {
+      return false;
+    }
+    handleAuthentication(httpClient, requestInfo, objs) {
+      return null;
+    }
+  };
+  exports2.PersonalAccessTokenCredentialHandler = PersonalAccessTokenCredentialHandler;
+});
+
+// node_modules/@actions/core/lib/oidc-utils.js
+var require_oidc_utils = __commonJS((exports2) => {
+  "use strict";
+  var __awaiter = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+      return value instanceof P ? value : new P(function(resolve) {
+        resolve(value);
+      });
+    }
+    return new (P || (P = Promise))(function(resolve, reject) {
+      function fulfilled(value) {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function rejected(value) {
+        try {
+          step(generator["throw"](value));
+        } catch (e) {
+          reject(e);
+        }
+      }
+      function step(result) {
+        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+      }
+      step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+  };
+  Object.defineProperty(exports2, "__esModule", {value: true});
+  exports2.OidcClient = void 0;
+  var http_client_1 = require_http_client();
+  var auth_1 = require_auth();
+  var core_1 = require_core();
+  var OidcClient = class {
+    static createHttpClient(allowRetry = true, maxRetry = 10) {
+      const requestOptions = {
+        allowRetries: allowRetry,
+        maxRetries: maxRetry
+      };
+      return new http_client_1.HttpClient("actions/oidc-client", [new auth_1.BearerCredentialHandler(OidcClient.getRequestToken())], requestOptions);
+    }
+    static getRequestToken() {
+      const token = process.env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"];
+      if (!token) {
+        throw new Error("Unable to get ACTIONS_ID_TOKEN_REQUEST_TOKEN env variable");
+      }
+      return token;
+    }
+    static getIDTokenUrl() {
+      const runtimeUrl = process.env["ACTIONS_ID_TOKEN_REQUEST_URL"];
+      if (!runtimeUrl) {
+        throw new Error("Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable");
+      }
+      return runtimeUrl;
+    }
+    static getCall(id_token_url) {
+      var _a;
+      return __awaiter(this, void 0, void 0, function* () {
+        const httpclient = OidcClient.createHttpClient();
+        const res = yield httpclient.getJson(id_token_url).catch((error2) => {
+          throw new Error(`Failed to get ID Token. 
+ 
+        Error Code : ${error2.statusCode}
+ 
+        Error Message: ${error2.result.message}`);
+        });
+        const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
+        if (!id_token) {
+          throw new Error("Response json body do not have ID Token field");
+        }
+        return id_token;
+      });
+    }
+    static getIDToken(audience) {
+      return __awaiter(this, void 0, void 0, function* () {
+        try {
+          let id_token_url = OidcClient.getIDTokenUrl();
+          if (audience) {
+            const encodedAudience = encodeURIComponent(audience);
+            id_token_url = `${id_token_url}&audience=${encodedAudience}`;
+          }
+          core_1.debug(`ID token url is ${id_token_url}`);
+          const id_token = yield OidcClient.getCall(id_token_url);
+          core_1.setSecret(id_token);
+          return id_token;
+        } catch (error2) {
+          throw new Error(`Error message: ${error2.message}`);
+        }
+      });
+    }
+  };
+  exports2.OidcClient = OidcClient;
 });
 
 // node_modules/@actions/core/lib/core.js
@@ -248,12 +1137,13 @@ var require_core = __commonJS((exports2) => {
     });
   };
   Object.defineProperty(exports2, "__esModule", {value: true});
-  exports2.getState = exports2.saveState = exports2.group = exports2.endGroup = exports2.startGroup = exports2.info = exports2.notice = exports2.warning = exports2.error = exports2.debug = exports2.isDebug = exports2.setFailed = exports2.setCommandEcho = exports2.setOutput = exports2.getBooleanInput = exports2.getMultilineInput = exports2.getInput = exports2.addPath = exports2.setSecret = exports2.exportVariable = exports2.ExitCode = void 0;
+  exports2.getIDToken = exports2.getState = exports2.saveState = exports2.group = exports2.endGroup = exports2.startGroup = exports2.info = exports2.notice = exports2.warning = exports2.error = exports2.debug = exports2.isDebug = exports2.setFailed = exports2.setCommandEcho = exports2.setOutput = exports2.getBooleanInput = exports2.getMultilineInput = exports2.getInput = exports2.addPath = exports2.setSecret = exports2.exportVariable = exports2.ExitCode = void 0;
   var command_1 = require_command();
   var file_command_1 = require_file_command();
   var utils_1 = require_utils();
   var os3 = __importStar(require("os"));
   var path5 = __importStar(require("path"));
+  var oidc_utils_1 = require_oidc_utils();
   var ExitCode;
   (function(ExitCode2) {
     ExitCode2[ExitCode2["Success"] = 0] = "Success";
@@ -381,6 +1271,12 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     return process.env[`STATE_${name}`] || "";
   }
   exports2.getState = getState;
+  function getIDToken(aud) {
+    return __awaiter(this, void 0, void 0, function* () {
+      return yield oidc_utils_1.OidcClient.getIDToken(aud);
+    });
+  }
+  exports2.getIDToken = getIDToken;
 });
 
 // node_modules/@actions/io/lib/io-util.js
@@ -444,9 +1340,9 @@ var require_io_util = __commonJS((exports2) => {
   var _a;
   Object.defineProperty(exports2, "__esModule", {value: true});
   exports2.getCmdPath = exports2.tryGetExecutablePath = exports2.isRooted = exports2.isDirectory = exports2.exists = exports2.IS_WINDOWS = exports2.unlink = exports2.symlink = exports2.stat = exports2.rmdir = exports2.rename = exports2.readlink = exports2.readdir = exports2.mkdir = exports2.lstat = exports2.copyFile = exports2.chmod = void 0;
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var path5 = __importStar(require("path"));
-  _a = fs2.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
+  _a = fs3.promises, exports2.chmod = _a.chmod, exports2.copyFile = _a.copyFile, exports2.lstat = _a.lstat, exports2.mkdir = _a.mkdir, exports2.readdir = _a.readdir, exports2.readlink = _a.readlink, exports2.rename = _a.rename, exports2.rmdir = _a.rmdir, exports2.stat = _a.stat, exports2.symlink = _a.symlink, exports2.unlink = _a.unlink;
   exports2.IS_WINDOWS = process.platform === "win32";
   function exists(fsPath) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -1425,7 +2321,7 @@ var require_exec = __commonJS((exports2) => {
   exports2.getExecOutput = getExecOutput;
 });
 
-// node_modules/semver/internal/constants.js
+// node_modules/setup-python/node_modules/semver/internal/constants.js
 var require_constants = __commonJS((exports2, module2) => {
   var SEMVER_SPEC_VERSION = "2.0.0";
   var MAX_LENGTH = 256;
@@ -1439,14 +2335,14 @@ var require_constants = __commonJS((exports2, module2) => {
   };
 });
 
-// node_modules/semver/internal/debug.js
+// node_modules/setup-python/node_modules/semver/internal/debug.js
 var require_debug = __commonJS((exports2, module2) => {
   var debug2 = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
   };
   module2.exports = debug2;
 });
 
-// node_modules/semver/internal/re.js
+// node_modules/setup-python/node_modules/semver/internal/re.js
 var require_re = __commonJS((exports2, module2) => {
   var {MAX_SAFE_COMPONENT_LENGTH} = require_constants();
   var debug2 = require_debug();
@@ -1507,7 +2403,7 @@ var require_re = __commonJS((exports2, module2) => {
   createToken("GTE0PRE", "^\\s*>=\\s*0.0.0-0\\s*$");
 });
 
-// node_modules/semver/internal/parse-options.js
+// node_modules/setup-python/node_modules/semver/internal/parse-options.js
 var require_parse_options = __commonJS((exports2, module2) => {
   var opts = ["includePrerelease", "loose", "rtl"];
   var parseOptions = (options) => !options ? {} : typeof options !== "object" ? {loose: true} : opts.filter((k) => options[k]).reduce((options2, k) => {
@@ -1517,7 +2413,7 @@ var require_parse_options = __commonJS((exports2, module2) => {
   module2.exports = parseOptions;
 });
 
-// node_modules/semver/internal/identifiers.js
+// node_modules/setup-python/node_modules/semver/internal/identifiers.js
 var require_identifiers = __commonJS((exports2, module2) => {
   var numeric = /^[0-9]+$/;
   var compareIdentifiers = (a, b) => {
@@ -1536,7 +2432,7 @@ var require_identifiers = __commonJS((exports2, module2) => {
   };
 });
 
-// node_modules/semver/classes/semver.js
+// node_modules/setup-python/node_modules/semver/classes/semver.js
 var require_semver = __commonJS((exports2, module2) => {
   var debug2 = require_debug();
   var {MAX_LENGTH, MAX_SAFE_INTEGER} = require_constants();
@@ -1758,7 +2654,7 @@ var require_semver = __commonJS((exports2, module2) => {
   module2.exports = SemVer;
 });
 
-// node_modules/semver/functions/parse.js
+// node_modules/setup-python/node_modules/semver/functions/parse.js
 var require_parse = __commonJS((exports2, module2) => {
   var {MAX_LENGTH} = require_constants();
   var {re, t} = require_re();
@@ -1788,7 +2684,7 @@ var require_parse = __commonJS((exports2, module2) => {
   module2.exports = parse;
 });
 
-// node_modules/semver/functions/valid.js
+// node_modules/setup-python/node_modules/semver/functions/valid.js
 var require_valid = __commonJS((exports2, module2) => {
   var parse = require_parse();
   var valid = (version, options) => {
@@ -1798,7 +2694,7 @@ var require_valid = __commonJS((exports2, module2) => {
   module2.exports = valid;
 });
 
-// node_modules/semver/functions/clean.js
+// node_modules/setup-python/node_modules/semver/functions/clean.js
 var require_clean = __commonJS((exports2, module2) => {
   var parse = require_parse();
   var clean = (version, options) => {
@@ -1808,7 +2704,7 @@ var require_clean = __commonJS((exports2, module2) => {
   module2.exports = clean;
 });
 
-// node_modules/semver/functions/inc.js
+// node_modules/setup-python/node_modules/semver/functions/inc.js
 var require_inc = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var inc = (version, release, options, identifier) => {
@@ -1825,21 +2721,21 @@ var require_inc = __commonJS((exports2, module2) => {
   module2.exports = inc;
 });
 
-// node_modules/semver/functions/compare.js
+// node_modules/setup-python/node_modules/semver/functions/compare.js
 var require_compare = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var compare = (a, b, loose) => new SemVer(a, loose).compare(new SemVer(b, loose));
   module2.exports = compare;
 });
 
-// node_modules/semver/functions/eq.js
+// node_modules/setup-python/node_modules/semver/functions/eq.js
 var require_eq = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var eq = (a, b, loose) => compare(a, b, loose) === 0;
   module2.exports = eq;
 });
 
-// node_modules/semver/functions/diff.js
+// node_modules/setup-python/node_modules/semver/functions/diff.js
 var require_diff = __commonJS((exports2, module2) => {
   var parse = require_parse();
   var eq = require_eq();
@@ -1865,28 +2761,28 @@ var require_diff = __commonJS((exports2, module2) => {
   module2.exports = diff;
 });
 
-// node_modules/semver/functions/major.js
+// node_modules/setup-python/node_modules/semver/functions/major.js
 var require_major = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var major2 = (a, loose) => new SemVer(a, loose).major;
   module2.exports = major2;
 });
 
-// node_modules/semver/functions/minor.js
+// node_modules/setup-python/node_modules/semver/functions/minor.js
 var require_minor = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var minor2 = (a, loose) => new SemVer(a, loose).minor;
   module2.exports = minor2;
 });
 
-// node_modules/semver/functions/patch.js
+// node_modules/setup-python/node_modules/semver/functions/patch.js
 var require_patch = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var patch = (a, loose) => new SemVer(a, loose).patch;
   module2.exports = patch;
 });
 
-// node_modules/semver/functions/prerelease.js
+// node_modules/setup-python/node_modules/semver/functions/prerelease.js
 var require_prerelease = __commonJS((exports2, module2) => {
   var parse = require_parse();
   var prerelease = (version, options) => {
@@ -1896,21 +2792,21 @@ var require_prerelease = __commonJS((exports2, module2) => {
   module2.exports = prerelease;
 });
 
-// node_modules/semver/functions/rcompare.js
+// node_modules/setup-python/node_modules/semver/functions/rcompare.js
 var require_rcompare = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var rcompare = (a, b, loose) => compare(b, a, loose);
   module2.exports = rcompare;
 });
 
-// node_modules/semver/functions/compare-loose.js
+// node_modules/setup-python/node_modules/semver/functions/compare-loose.js
 var require_compare_loose = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var compareLoose = (a, b) => compare(a, b, true);
   module2.exports = compareLoose;
 });
 
-// node_modules/semver/functions/compare-build.js
+// node_modules/setup-python/node_modules/semver/functions/compare-build.js
 var require_compare_build = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var compareBuild = (a, b, loose) => {
@@ -1921,56 +2817,56 @@ var require_compare_build = __commonJS((exports2, module2) => {
   module2.exports = compareBuild;
 });
 
-// node_modules/semver/functions/sort.js
+// node_modules/setup-python/node_modules/semver/functions/sort.js
 var require_sort = __commonJS((exports2, module2) => {
   var compareBuild = require_compare_build();
   var sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose));
   module2.exports = sort;
 });
 
-// node_modules/semver/functions/rsort.js
+// node_modules/setup-python/node_modules/semver/functions/rsort.js
 var require_rsort = __commonJS((exports2, module2) => {
   var compareBuild = require_compare_build();
   var rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose));
   module2.exports = rsort;
 });
 
-// node_modules/semver/functions/gt.js
+// node_modules/setup-python/node_modules/semver/functions/gt.js
 var require_gt = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var gt = (a, b, loose) => compare(a, b, loose) > 0;
   module2.exports = gt;
 });
 
-// node_modules/semver/functions/lt.js
+// node_modules/setup-python/node_modules/semver/functions/lt.js
 var require_lt = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var lt = (a, b, loose) => compare(a, b, loose) < 0;
   module2.exports = lt;
 });
 
-// node_modules/semver/functions/neq.js
+// node_modules/setup-python/node_modules/semver/functions/neq.js
 var require_neq = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var neq = (a, b, loose) => compare(a, b, loose) !== 0;
   module2.exports = neq;
 });
 
-// node_modules/semver/functions/gte.js
+// node_modules/setup-python/node_modules/semver/functions/gte.js
 var require_gte = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var gte = (a, b, loose) => compare(a, b, loose) >= 0;
   module2.exports = gte;
 });
 
-// node_modules/semver/functions/lte.js
+// node_modules/setup-python/node_modules/semver/functions/lte.js
 var require_lte = __commonJS((exports2, module2) => {
   var compare = require_compare();
   var lte = (a, b, loose) => compare(a, b, loose) <= 0;
   module2.exports = lte;
 });
 
-// node_modules/semver/functions/cmp.js
+// node_modules/setup-python/node_modules/semver/functions/cmp.js
 var require_cmp = __commonJS((exports2, module2) => {
   var eq = require_eq();
   var neq = require_neq();
@@ -2013,7 +2909,7 @@ var require_cmp = __commonJS((exports2, module2) => {
   module2.exports = cmp;
 });
 
-// node_modules/semver/functions/coerce.js
+// node_modules/setup-python/node_modules/semver/functions/coerce.js
 var require_coerce = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var parse = require_parse();
@@ -2694,7 +3590,7 @@ var require_lru_cache = __commonJS((exports2, module2) => {
   module2.exports = LRUCache;
 });
 
-// node_modules/semver/classes/range.js
+// node_modules/setup-python/node_modules/semver/classes/range.js
 var require_range = __commonJS((exports2, module2) => {
   var Range = class {
     constructor(range, options) {
@@ -3041,7 +3937,7 @@ var require_range = __commonJS((exports2, module2) => {
   };
 });
 
-// node_modules/semver/classes/comparator.js
+// node_modules/setup-python/node_modules/semver/classes/comparator.js
 var require_comparator = __commonJS((exports2, module2) => {
   var ANY = Symbol("SemVer ANY");
   var Comparator = class {
@@ -3140,7 +4036,7 @@ var require_comparator = __commonJS((exports2, module2) => {
   var Range = require_range();
 });
 
-// node_modules/semver/functions/satisfies.js
+// node_modules/setup-python/node_modules/semver/functions/satisfies.js
 var require_satisfies = __commonJS((exports2, module2) => {
   var Range = require_range();
   var satisfies = (version, range, options) => {
@@ -3154,14 +4050,14 @@ var require_satisfies = __commonJS((exports2, module2) => {
   module2.exports = satisfies;
 });
 
-// node_modules/semver/ranges/to-comparators.js
+// node_modules/setup-python/node_modules/semver/ranges/to-comparators.js
 var require_to_comparators = __commonJS((exports2, module2) => {
   var Range = require_range();
   var toComparators = (range, options) => new Range(range, options).set.map((comp) => comp.map((c) => c.value).join(" ").trim().split(" "));
   module2.exports = toComparators;
 });
 
-// node_modules/semver/ranges/max-satisfying.js
+// node_modules/setup-python/node_modules/semver/ranges/max-satisfying.js
 var require_max_satisfying = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var Range = require_range();
@@ -3187,7 +4083,7 @@ var require_max_satisfying = __commonJS((exports2, module2) => {
   module2.exports = maxSatisfying;
 });
 
-// node_modules/semver/ranges/min-satisfying.js
+// node_modules/setup-python/node_modules/semver/ranges/min-satisfying.js
 var require_min_satisfying = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var Range = require_range();
@@ -3213,7 +4109,7 @@ var require_min_satisfying = __commonJS((exports2, module2) => {
   module2.exports = minSatisfying;
 });
 
-// node_modules/semver/ranges/min-version.js
+// node_modules/setup-python/node_modules/semver/ranges/min-version.js
 var require_min_version = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var Range = require_range();
@@ -3266,7 +4162,7 @@ var require_min_version = __commonJS((exports2, module2) => {
   module2.exports = minVersion;
 });
 
-// node_modules/semver/ranges/valid.js
+// node_modules/setup-python/node_modules/semver/ranges/valid.js
 var require_valid2 = __commonJS((exports2, module2) => {
   var Range = require_range();
   var validRange2 = (range, options) => {
@@ -3279,7 +4175,7 @@ var require_valid2 = __commonJS((exports2, module2) => {
   module2.exports = validRange2;
 });
 
-// node_modules/semver/ranges/outside.js
+// node_modules/setup-python/node_modules/semver/ranges/outside.js
 var require_outside = __commonJS((exports2, module2) => {
   var SemVer = require_semver();
   var Comparator = require_comparator();
@@ -3345,21 +4241,21 @@ var require_outside = __commonJS((exports2, module2) => {
   module2.exports = outside;
 });
 
-// node_modules/semver/ranges/gtr.js
+// node_modules/setup-python/node_modules/semver/ranges/gtr.js
 var require_gtr = __commonJS((exports2, module2) => {
   var outside = require_outside();
   var gtr = (version, range, options) => outside(version, range, ">", options);
   module2.exports = gtr;
 });
 
-// node_modules/semver/ranges/ltr.js
+// node_modules/setup-python/node_modules/semver/ranges/ltr.js
 var require_ltr = __commonJS((exports2, module2) => {
   var outside = require_outside();
   var ltr = (version, range, options) => outside(version, range, "<", options);
   module2.exports = ltr;
 });
 
-// node_modules/semver/ranges/intersects.js
+// node_modules/setup-python/node_modules/semver/ranges/intersects.js
 var require_intersects = __commonJS((exports2, module2) => {
   var Range = require_range();
   var intersects = (r1, r2, options) => {
@@ -3370,7 +4266,7 @@ var require_intersects = __commonJS((exports2, module2) => {
   module2.exports = intersects;
 });
 
-// node_modules/semver/ranges/simplify.js
+// node_modules/setup-python/node_modules/semver/ranges/simplify.js
 var require_simplify = __commonJS((exports2, module2) => {
   var satisfies = require_satisfies();
   var compare = require_compare();
@@ -3414,7 +4310,7 @@ var require_simplify = __commonJS((exports2, module2) => {
   };
 });
 
-// node_modules/semver/ranges/subset.js
+// node_modules/setup-python/node_modules/semver/ranges/subset.js
 var require_subset = __commonJS((exports2, module2) => {
   var Range = require_range();
   var Comparator = require_comparator();
@@ -3550,7 +4446,7 @@ var require_subset = __commonJS((exports2, module2) => {
   module2.exports = subset;
 });
 
-// node_modules/semver/index.js
+// node_modules/setup-python/node_modules/semver/index.js
 var require_semver2 = __commonJS((exports2, module2) => {
   var internalRe = require_re();
   module2.exports = {
@@ -3601,7 +4497,7 @@ var require_semver2 = __commonJS((exports2, module2) => {
   };
 });
 
-// node_modules/@actions/tool-cache/node_modules/semver/semver.js
+// node_modules/semver/semver.js
 var require_semver3 = __commonJS((exports2, module2) => {
   exports2 = module2.exports = SemVer;
   var debug2;
@@ -4790,7 +5686,7 @@ var require_manifest = __commonJS((exports2, module2) => {
   var core_1 = require_core();
   var os3 = require("os");
   var cp = require("child_process");
-  var fs2 = require("fs");
+  var fs3 = require("fs");
   function _findMatch(versionSpec, stable, candidates, archFilter) {
     return __awaiter(this, void 0, void 0, function* () {
       const platFilter = os3.platform();
@@ -4854,754 +5750,14 @@ var require_manifest = __commonJS((exports2, module2) => {
     const lsbReleaseFile = "/etc/lsb-release";
     const osReleaseFile = "/etc/os-release";
     let contents = "";
-    if (fs2.existsSync(lsbReleaseFile)) {
-      contents = fs2.readFileSync(lsbReleaseFile).toString();
-    } else if (fs2.existsSync(osReleaseFile)) {
-      contents = fs2.readFileSync(osReleaseFile).toString();
+    if (fs3.existsSync(lsbReleaseFile)) {
+      contents = fs3.readFileSync(lsbReleaseFile).toString();
+    } else if (fs3.existsSync(osReleaseFile)) {
+      contents = fs3.readFileSync(osReleaseFile).toString();
     }
     return contents;
   }
   exports2._readLinuxVersionFile = _readLinuxVersionFile;
-});
-
-// node_modules/@actions/http-client/proxy.js
-var require_proxy = __commonJS((exports2) => {
-  "use strict";
-  Object.defineProperty(exports2, "__esModule", {value: true});
-  function getProxyUrl(reqUrl) {
-    let usingSsl = reqUrl.protocol === "https:";
-    let proxyUrl;
-    if (checkBypass(reqUrl)) {
-      return proxyUrl;
-    }
-    let proxyVar;
-    if (usingSsl) {
-      proxyVar = process.env["https_proxy"] || process.env["HTTPS_PROXY"];
-    } else {
-      proxyVar = process.env["http_proxy"] || process.env["HTTP_PROXY"];
-    }
-    if (proxyVar) {
-      proxyUrl = new URL(proxyVar);
-    }
-    return proxyUrl;
-  }
-  exports2.getProxyUrl = getProxyUrl;
-  function checkBypass(reqUrl) {
-    if (!reqUrl.hostname) {
-      return false;
-    }
-    let noProxy = process.env["no_proxy"] || process.env["NO_PROXY"] || "";
-    if (!noProxy) {
-      return false;
-    }
-    let reqPort;
-    if (reqUrl.port) {
-      reqPort = Number(reqUrl.port);
-    } else if (reqUrl.protocol === "http:") {
-      reqPort = 80;
-    } else if (reqUrl.protocol === "https:") {
-      reqPort = 443;
-    }
-    let upperReqHosts = [reqUrl.hostname.toUpperCase()];
-    if (typeof reqPort === "number") {
-      upperReqHosts.push(`${upperReqHosts[0]}:${reqPort}`);
-    }
-    for (let upperNoProxyItem of noProxy.split(",").map((x) => x.trim().toUpperCase()).filter((x) => x)) {
-      if (upperReqHosts.some((x) => x === upperNoProxyItem)) {
-        return true;
-      }
-    }
-    return false;
-  }
-  exports2.checkBypass = checkBypass;
-});
-
-// node_modules/tunnel/lib/tunnel.js
-var require_tunnel = __commonJS((exports2) => {
-  "use strict";
-  var net = require("net");
-  var tls = require("tls");
-  var http = require("http");
-  var https = require("https");
-  var events = require("events");
-  var assert = require("assert");
-  var util = require("util");
-  exports2.httpOverHttp = httpOverHttp;
-  exports2.httpsOverHttp = httpsOverHttp;
-  exports2.httpOverHttps = httpOverHttps;
-  exports2.httpsOverHttps = httpsOverHttps;
-  function httpOverHttp(options) {
-    var agent = new TunnelingAgent(options);
-    agent.request = http.request;
-    return agent;
-  }
-  function httpsOverHttp(options) {
-    var agent = new TunnelingAgent(options);
-    agent.request = http.request;
-    agent.createSocket = createSecureSocket;
-    agent.defaultPort = 443;
-    return agent;
-  }
-  function httpOverHttps(options) {
-    var agent = new TunnelingAgent(options);
-    agent.request = https.request;
-    return agent;
-  }
-  function httpsOverHttps(options) {
-    var agent = new TunnelingAgent(options);
-    agent.request = https.request;
-    agent.createSocket = createSecureSocket;
-    agent.defaultPort = 443;
-    return agent;
-  }
-  function TunnelingAgent(options) {
-    var self = this;
-    self.options = options || {};
-    self.proxyOptions = self.options.proxy || {};
-    self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
-    self.requests = [];
-    self.sockets = [];
-    self.on("free", function onFree(socket, host, port, localAddress) {
-      var options2 = toOptions(host, port, localAddress);
-      for (var i = 0, len = self.requests.length; i < len; ++i) {
-        var pending = self.requests[i];
-        if (pending.host === options2.host && pending.port === options2.port) {
-          self.requests.splice(i, 1);
-          pending.request.onSocket(socket);
-          return;
-        }
-      }
-      socket.destroy();
-      self.removeSocket(socket);
-    });
-  }
-  util.inherits(TunnelingAgent, events.EventEmitter);
-  TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
-    var self = this;
-    var options = mergeOptions({request: req}, self.options, toOptions(host, port, localAddress));
-    if (self.sockets.length >= this.maxSockets) {
-      self.requests.push(options);
-      return;
-    }
-    self.createSocket(options, function(socket) {
-      socket.on("free", onFree);
-      socket.on("close", onCloseOrRemove);
-      socket.on("agentRemove", onCloseOrRemove);
-      req.onSocket(socket);
-      function onFree() {
-        self.emit("free", socket, options);
-      }
-      function onCloseOrRemove(err) {
-        self.removeSocket(socket);
-        socket.removeListener("free", onFree);
-        socket.removeListener("close", onCloseOrRemove);
-        socket.removeListener("agentRemove", onCloseOrRemove);
-      }
-    });
-  };
-  TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
-    var self = this;
-    var placeholder = {};
-    self.sockets.push(placeholder);
-    var connectOptions = mergeOptions({}, self.proxyOptions, {
-      method: "CONNECT",
-      path: options.host + ":" + options.port,
-      agent: false,
-      headers: {
-        host: options.host + ":" + options.port
-      }
-    });
-    if (options.localAddress) {
-      connectOptions.localAddress = options.localAddress;
-    }
-    if (connectOptions.proxyAuth) {
-      connectOptions.headers = connectOptions.headers || {};
-      connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
-    }
-    debug2("making CONNECT request");
-    var connectReq = self.request(connectOptions);
-    connectReq.useChunkedEncodingByDefault = false;
-    connectReq.once("response", onResponse);
-    connectReq.once("upgrade", onUpgrade);
-    connectReq.once("connect", onConnect);
-    connectReq.once("error", onError);
-    connectReq.end();
-    function onResponse(res) {
-      res.upgrade = true;
-    }
-    function onUpgrade(res, socket, head) {
-      process.nextTick(function() {
-        onConnect(res, socket, head);
-      });
-    }
-    function onConnect(res, socket, head) {
-      connectReq.removeAllListeners();
-      socket.removeAllListeners();
-      if (res.statusCode !== 200) {
-        debug2("tunneling socket could not be established, statusCode=%d", res.statusCode);
-        socket.destroy();
-        var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-        error2.code = "ECONNRESET";
-        options.request.emit("error", error2);
-        self.removeSocket(placeholder);
-        return;
-      }
-      if (head.length > 0) {
-        debug2("got illegal response body from proxy");
-        socket.destroy();
-        var error2 = new Error("got illegal response body from proxy");
-        error2.code = "ECONNRESET";
-        options.request.emit("error", error2);
-        self.removeSocket(placeholder);
-        return;
-      }
-      debug2("tunneling connection has established");
-      self.sockets[self.sockets.indexOf(placeholder)] = socket;
-      return cb(socket);
-    }
-    function onError(cause) {
-      connectReq.removeAllListeners();
-      debug2("tunneling socket could not be established, cause=%s\n", cause.message, cause.stack);
-      var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
-      error2.code = "ECONNRESET";
-      options.request.emit("error", error2);
-      self.removeSocket(placeholder);
-    }
-  };
-  TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
-    var pos = this.sockets.indexOf(socket);
-    if (pos === -1) {
-      return;
-    }
-    this.sockets.splice(pos, 1);
-    var pending = this.requests.shift();
-    if (pending) {
-      this.createSocket(pending, function(socket2) {
-        pending.request.onSocket(socket2);
-      });
-    }
-  };
-  function createSecureSocket(options, cb) {
-    var self = this;
-    TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-      var hostHeader = options.request.getHeader("host");
-      var tlsOptions = mergeOptions({}, self.options, {
-        socket,
-        servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
-      });
-      var secureSocket = tls.connect(0, tlsOptions);
-      self.sockets[self.sockets.indexOf(socket)] = secureSocket;
-      cb(secureSocket);
-    });
-  }
-  function toOptions(host, port, localAddress) {
-    if (typeof host === "string") {
-      return {
-        host,
-        port,
-        localAddress
-      };
-    }
-    return host;
-  }
-  function mergeOptions(target) {
-    for (var i = 1, len = arguments.length; i < len; ++i) {
-      var overrides = arguments[i];
-      if (typeof overrides === "object") {
-        var keys = Object.keys(overrides);
-        for (var j = 0, keyLen = keys.length; j < keyLen; ++j) {
-          var k = keys[j];
-          if (overrides[k] !== void 0) {
-            target[k] = overrides[k];
-          }
-        }
-      }
-    }
-    return target;
-  }
-  var debug2;
-  if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-    debug2 = function() {
-      var args = Array.prototype.slice.call(arguments);
-      if (typeof args[0] === "string") {
-        args[0] = "TUNNEL: " + args[0];
-      } else {
-        args.unshift("TUNNEL:");
-      }
-      console.error.apply(console, args);
-    };
-  } else {
-    debug2 = function() {
-    };
-  }
-  exports2.debug = debug2;
-});
-
-// node_modules/tunnel/index.js
-var require_tunnel2 = __commonJS((exports2, module2) => {
-  module2.exports = require_tunnel();
-});
-
-// node_modules/@actions/http-client/index.js
-var require_http_client = __commonJS((exports2) => {
-  "use strict";
-  Object.defineProperty(exports2, "__esModule", {value: true});
-  var http = require("http");
-  var https = require("https");
-  var pm = require_proxy();
-  var tunnel;
-  var HttpCodes;
-  (function(HttpCodes2) {
-    HttpCodes2[HttpCodes2["OK"] = 200] = "OK";
-    HttpCodes2[HttpCodes2["MultipleChoices"] = 300] = "MultipleChoices";
-    HttpCodes2[HttpCodes2["MovedPermanently"] = 301] = "MovedPermanently";
-    HttpCodes2[HttpCodes2["ResourceMoved"] = 302] = "ResourceMoved";
-    HttpCodes2[HttpCodes2["SeeOther"] = 303] = "SeeOther";
-    HttpCodes2[HttpCodes2["NotModified"] = 304] = "NotModified";
-    HttpCodes2[HttpCodes2["UseProxy"] = 305] = "UseProxy";
-    HttpCodes2[HttpCodes2["SwitchProxy"] = 306] = "SwitchProxy";
-    HttpCodes2[HttpCodes2["TemporaryRedirect"] = 307] = "TemporaryRedirect";
-    HttpCodes2[HttpCodes2["PermanentRedirect"] = 308] = "PermanentRedirect";
-    HttpCodes2[HttpCodes2["BadRequest"] = 400] = "BadRequest";
-    HttpCodes2[HttpCodes2["Unauthorized"] = 401] = "Unauthorized";
-    HttpCodes2[HttpCodes2["PaymentRequired"] = 402] = "PaymentRequired";
-    HttpCodes2[HttpCodes2["Forbidden"] = 403] = "Forbidden";
-    HttpCodes2[HttpCodes2["NotFound"] = 404] = "NotFound";
-    HttpCodes2[HttpCodes2["MethodNotAllowed"] = 405] = "MethodNotAllowed";
-    HttpCodes2[HttpCodes2["NotAcceptable"] = 406] = "NotAcceptable";
-    HttpCodes2[HttpCodes2["ProxyAuthenticationRequired"] = 407] = "ProxyAuthenticationRequired";
-    HttpCodes2[HttpCodes2["RequestTimeout"] = 408] = "RequestTimeout";
-    HttpCodes2[HttpCodes2["Conflict"] = 409] = "Conflict";
-    HttpCodes2[HttpCodes2["Gone"] = 410] = "Gone";
-    HttpCodes2[HttpCodes2["TooManyRequests"] = 429] = "TooManyRequests";
-    HttpCodes2[HttpCodes2["InternalServerError"] = 500] = "InternalServerError";
-    HttpCodes2[HttpCodes2["NotImplemented"] = 501] = "NotImplemented";
-    HttpCodes2[HttpCodes2["BadGateway"] = 502] = "BadGateway";
-    HttpCodes2[HttpCodes2["ServiceUnavailable"] = 503] = "ServiceUnavailable";
-    HttpCodes2[HttpCodes2["GatewayTimeout"] = 504] = "GatewayTimeout";
-  })(HttpCodes = exports2.HttpCodes || (exports2.HttpCodes = {}));
-  var Headers;
-  (function(Headers2) {
-    Headers2["Accept"] = "accept";
-    Headers2["ContentType"] = "content-type";
-  })(Headers = exports2.Headers || (exports2.Headers = {}));
-  var MediaTypes;
-  (function(MediaTypes2) {
-    MediaTypes2["ApplicationJson"] = "application/json";
-  })(MediaTypes = exports2.MediaTypes || (exports2.MediaTypes = {}));
-  function getProxyUrl(serverUrl) {
-    let proxyUrl = pm.getProxyUrl(new URL(serverUrl));
-    return proxyUrl ? proxyUrl.href : "";
-  }
-  exports2.getProxyUrl = getProxyUrl;
-  var HttpRedirectCodes = [
-    HttpCodes.MovedPermanently,
-    HttpCodes.ResourceMoved,
-    HttpCodes.SeeOther,
-    HttpCodes.TemporaryRedirect,
-    HttpCodes.PermanentRedirect
-  ];
-  var HttpResponseRetryCodes = [
-    HttpCodes.BadGateway,
-    HttpCodes.ServiceUnavailable,
-    HttpCodes.GatewayTimeout
-  ];
-  var RetryableHttpVerbs = ["OPTIONS", "GET", "DELETE", "HEAD"];
-  var ExponentialBackoffCeiling = 10;
-  var ExponentialBackoffTimeSlice = 5;
-  var HttpClientError = class extends Error {
-    constructor(message, statusCode) {
-      super(message);
-      this.name = "HttpClientError";
-      this.statusCode = statusCode;
-      Object.setPrototypeOf(this, HttpClientError.prototype);
-    }
-  };
-  exports2.HttpClientError = HttpClientError;
-  var HttpClientResponse = class {
-    constructor(message) {
-      this.message = message;
-    }
-    readBody() {
-      return new Promise(async (resolve, reject) => {
-        let output = Buffer.alloc(0);
-        this.message.on("data", (chunk) => {
-          output = Buffer.concat([output, chunk]);
-        });
-        this.message.on("end", () => {
-          resolve(output.toString());
-        });
-      });
-    }
-  };
-  exports2.HttpClientResponse = HttpClientResponse;
-  function isHttps(requestUrl) {
-    let parsedUrl = new URL(requestUrl);
-    return parsedUrl.protocol === "https:";
-  }
-  exports2.isHttps = isHttps;
-  var HttpClient = class {
-    constructor(userAgent, handlers, requestOptions) {
-      this._ignoreSslError = false;
-      this._allowRedirects = true;
-      this._allowRedirectDowngrade = false;
-      this._maxRedirects = 50;
-      this._allowRetries = false;
-      this._maxRetries = 1;
-      this._keepAlive = false;
-      this._disposed = false;
-      this.userAgent = userAgent;
-      this.handlers = handlers || [];
-      this.requestOptions = requestOptions;
-      if (requestOptions) {
-        if (requestOptions.ignoreSslError != null) {
-          this._ignoreSslError = requestOptions.ignoreSslError;
-        }
-        this._socketTimeout = requestOptions.socketTimeout;
-        if (requestOptions.allowRedirects != null) {
-          this._allowRedirects = requestOptions.allowRedirects;
-        }
-        if (requestOptions.allowRedirectDowngrade != null) {
-          this._allowRedirectDowngrade = requestOptions.allowRedirectDowngrade;
-        }
-        if (requestOptions.maxRedirects != null) {
-          this._maxRedirects = Math.max(requestOptions.maxRedirects, 0);
-        }
-        if (requestOptions.keepAlive != null) {
-          this._keepAlive = requestOptions.keepAlive;
-        }
-        if (requestOptions.allowRetries != null) {
-          this._allowRetries = requestOptions.allowRetries;
-        }
-        if (requestOptions.maxRetries != null) {
-          this._maxRetries = requestOptions.maxRetries;
-        }
-      }
-    }
-    options(requestUrl, additionalHeaders) {
-      return this.request("OPTIONS", requestUrl, null, additionalHeaders || {});
-    }
-    get(requestUrl, additionalHeaders) {
-      return this.request("GET", requestUrl, null, additionalHeaders || {});
-    }
-    del(requestUrl, additionalHeaders) {
-      return this.request("DELETE", requestUrl, null, additionalHeaders || {});
-    }
-    post(requestUrl, data, additionalHeaders) {
-      return this.request("POST", requestUrl, data, additionalHeaders || {});
-    }
-    patch(requestUrl, data, additionalHeaders) {
-      return this.request("PATCH", requestUrl, data, additionalHeaders || {});
-    }
-    put(requestUrl, data, additionalHeaders) {
-      return this.request("PUT", requestUrl, data, additionalHeaders || {});
-    }
-    head(requestUrl, additionalHeaders) {
-      return this.request("HEAD", requestUrl, null, additionalHeaders || {});
-    }
-    sendStream(verb, requestUrl, stream, additionalHeaders) {
-      return this.request(verb, requestUrl, stream, additionalHeaders);
-    }
-    async getJson(requestUrl, additionalHeaders = {}) {
-      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-      let res = await this.get(requestUrl, additionalHeaders);
-      return this._processResponse(res, this.requestOptions);
-    }
-    async postJson(requestUrl, obj, additionalHeaders = {}) {
-      let data = JSON.stringify(obj, null, 2);
-      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-      let res = await this.post(requestUrl, data, additionalHeaders);
-      return this._processResponse(res, this.requestOptions);
-    }
-    async putJson(requestUrl, obj, additionalHeaders = {}) {
-      let data = JSON.stringify(obj, null, 2);
-      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-      let res = await this.put(requestUrl, data, additionalHeaders);
-      return this._processResponse(res, this.requestOptions);
-    }
-    async patchJson(requestUrl, obj, additionalHeaders = {}) {
-      let data = JSON.stringify(obj, null, 2);
-      additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
-      additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
-      let res = await this.patch(requestUrl, data, additionalHeaders);
-      return this._processResponse(res, this.requestOptions);
-    }
-    async request(verb, requestUrl, data, headers) {
-      if (this._disposed) {
-        throw new Error("Client has already been disposed.");
-      }
-      let parsedUrl = new URL(requestUrl);
-      let info4 = this._prepareRequest(verb, parsedUrl, headers);
-      let maxTries = this._allowRetries && RetryableHttpVerbs.indexOf(verb) != -1 ? this._maxRetries + 1 : 1;
-      let numTries = 0;
-      let response;
-      while (numTries < maxTries) {
-        response = await this.requestRaw(info4, data);
-        if (response && response.message && response.message.statusCode === HttpCodes.Unauthorized) {
-          let authenticationHandler;
-          for (let i = 0; i < this.handlers.length; i++) {
-            if (this.handlers[i].canHandleAuthentication(response)) {
-              authenticationHandler = this.handlers[i];
-              break;
-            }
-          }
-          if (authenticationHandler) {
-            return authenticationHandler.handleAuthentication(this, info4, data);
-          } else {
-            return response;
-          }
-        }
-        let redirectsRemaining = this._maxRedirects;
-        while (HttpRedirectCodes.indexOf(response.message.statusCode) != -1 && this._allowRedirects && redirectsRemaining > 0) {
-          const redirectUrl = response.message.headers["location"];
-          if (!redirectUrl) {
-            break;
-          }
-          let parsedRedirectUrl = new URL(redirectUrl);
-          if (parsedUrl.protocol == "https:" && parsedUrl.protocol != parsedRedirectUrl.protocol && !this._allowRedirectDowngrade) {
-            throw new Error("Redirect from HTTPS to HTTP protocol. This downgrade is not allowed for security reasons. If you want to allow this behavior, set the allowRedirectDowngrade option to true.");
-          }
-          await response.readBody();
-          if (parsedRedirectUrl.hostname !== parsedUrl.hostname) {
-            for (let header in headers) {
-              if (header.toLowerCase() === "authorization") {
-                delete headers[header];
-              }
-            }
-          }
-          info4 = this._prepareRequest(verb, parsedRedirectUrl, headers);
-          response = await this.requestRaw(info4, data);
-          redirectsRemaining--;
-        }
-        if (HttpResponseRetryCodes.indexOf(response.message.statusCode) == -1) {
-          return response;
-        }
-        numTries += 1;
-        if (numTries < maxTries) {
-          await response.readBody();
-          await this._performExponentialBackoff(numTries);
-        }
-      }
-      return response;
-    }
-    dispose() {
-      if (this._agent) {
-        this._agent.destroy();
-      }
-      this._disposed = true;
-    }
-    requestRaw(info4, data) {
-      return new Promise((resolve, reject) => {
-        let callbackForResult = function(err, res) {
-          if (err) {
-            reject(err);
-          }
-          resolve(res);
-        };
-        this.requestRawWithCallback(info4, data, callbackForResult);
-      });
-    }
-    requestRawWithCallback(info4, data, onResult) {
-      let socket;
-      if (typeof data === "string") {
-        info4.options.headers["Content-Length"] = Buffer.byteLength(data, "utf8");
-      }
-      let callbackCalled = false;
-      let handleResult = (err, res) => {
-        if (!callbackCalled) {
-          callbackCalled = true;
-          onResult(err, res);
-        }
-      };
-      let req = info4.httpModule.request(info4.options, (msg) => {
-        let res = new HttpClientResponse(msg);
-        handleResult(null, res);
-      });
-      req.on("socket", (sock) => {
-        socket = sock;
-      });
-      req.setTimeout(this._socketTimeout || 3 * 6e4, () => {
-        if (socket) {
-          socket.end();
-        }
-        handleResult(new Error("Request timeout: " + info4.options.path), null);
-      });
-      req.on("error", function(err) {
-        handleResult(err, null);
-      });
-      if (data && typeof data === "string") {
-        req.write(data, "utf8");
-      }
-      if (data && typeof data !== "string") {
-        data.on("close", function() {
-          req.end();
-        });
-        data.pipe(req);
-      } else {
-        req.end();
-      }
-    }
-    getAgent(serverUrl) {
-      let parsedUrl = new URL(serverUrl);
-      return this._getAgent(parsedUrl);
-    }
-    _prepareRequest(method, requestUrl, headers) {
-      const info4 = {};
-      info4.parsedUrl = requestUrl;
-      const usingSsl = info4.parsedUrl.protocol === "https:";
-      info4.httpModule = usingSsl ? https : http;
-      const defaultPort = usingSsl ? 443 : 80;
-      info4.options = {};
-      info4.options.host = info4.parsedUrl.hostname;
-      info4.options.port = info4.parsedUrl.port ? parseInt(info4.parsedUrl.port) : defaultPort;
-      info4.options.path = (info4.parsedUrl.pathname || "") + (info4.parsedUrl.search || "");
-      info4.options.method = method;
-      info4.options.headers = this._mergeHeaders(headers);
-      if (this.userAgent != null) {
-        info4.options.headers["user-agent"] = this.userAgent;
-      }
-      info4.options.agent = this._getAgent(info4.parsedUrl);
-      if (this.handlers) {
-        this.handlers.forEach((handler) => {
-          handler.prepareRequest(info4.options);
-        });
-      }
-      return info4;
-    }
-    _mergeHeaders(headers) {
-      const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => (c[k.toLowerCase()] = obj[k], c), {});
-      if (this.requestOptions && this.requestOptions.headers) {
-        return Object.assign({}, lowercaseKeys(this.requestOptions.headers), lowercaseKeys(headers));
-      }
-      return lowercaseKeys(headers || {});
-    }
-    _getExistingOrDefaultHeader(additionalHeaders, header, _default) {
-      const lowercaseKeys = (obj) => Object.keys(obj).reduce((c, k) => (c[k.toLowerCase()] = obj[k], c), {});
-      let clientHeader;
-      if (this.requestOptions && this.requestOptions.headers) {
-        clientHeader = lowercaseKeys(this.requestOptions.headers)[header];
-      }
-      return additionalHeaders[header] || clientHeader || _default;
-    }
-    _getAgent(parsedUrl) {
-      let agent;
-      let proxyUrl = pm.getProxyUrl(parsedUrl);
-      let useProxy = proxyUrl && proxyUrl.hostname;
-      if (this._keepAlive && useProxy) {
-        agent = this._proxyAgent;
-      }
-      if (this._keepAlive && !useProxy) {
-        agent = this._agent;
-      }
-      if (!!agent) {
-        return agent;
-      }
-      const usingSsl = parsedUrl.protocol === "https:";
-      let maxSockets = 100;
-      if (!!this.requestOptions) {
-        maxSockets = this.requestOptions.maxSockets || http.globalAgent.maxSockets;
-      }
-      if (useProxy) {
-        if (!tunnel) {
-          tunnel = require_tunnel2();
-        }
-        const agentOptions = {
-          maxSockets,
-          keepAlive: this._keepAlive,
-          proxy: {
-            ...(proxyUrl.username || proxyUrl.password) && {
-              proxyAuth: `${proxyUrl.username}:${proxyUrl.password}`
-            },
-            host: proxyUrl.hostname,
-            port: proxyUrl.port
-          }
-        };
-        let tunnelAgent;
-        const overHttps = proxyUrl.protocol === "https:";
-        if (usingSsl) {
-          tunnelAgent = overHttps ? tunnel.httpsOverHttps : tunnel.httpsOverHttp;
-        } else {
-          tunnelAgent = overHttps ? tunnel.httpOverHttps : tunnel.httpOverHttp;
-        }
-        agent = tunnelAgent(agentOptions);
-        this._proxyAgent = agent;
-      }
-      if (this._keepAlive && !agent) {
-        const options = {keepAlive: this._keepAlive, maxSockets};
-        agent = usingSsl ? new https.Agent(options) : new http.Agent(options);
-        this._agent = agent;
-      }
-      if (!agent) {
-        agent = usingSsl ? https.globalAgent : http.globalAgent;
-      }
-      if (usingSsl && this._ignoreSslError) {
-        agent.options = Object.assign(agent.options || {}, {
-          rejectUnauthorized: false
-        });
-      }
-      return agent;
-    }
-    _performExponentialBackoff(retryNumber) {
-      retryNumber = Math.min(ExponentialBackoffCeiling, retryNumber);
-      const ms = ExponentialBackoffTimeSlice * Math.pow(2, retryNumber);
-      return new Promise((resolve) => setTimeout(() => resolve(), ms));
-    }
-    static dateTimeDeserializer(key, value) {
-      if (typeof value === "string") {
-        let a = new Date(value);
-        if (!isNaN(a.valueOf())) {
-          return a;
-        }
-      }
-      return value;
-    }
-    async _processResponse(res, options) {
-      return new Promise(async (resolve, reject) => {
-        const statusCode = res.message.statusCode;
-        const response = {
-          statusCode,
-          result: null,
-          headers: {}
-        };
-        if (statusCode == HttpCodes.NotFound) {
-          resolve(response);
-        }
-        let obj;
-        let contents;
-        try {
-          contents = await res.readBody();
-          if (contents && contents.length > 0) {
-            if (options && options.deserializeDates) {
-              obj = JSON.parse(contents, HttpClient.dateTimeDeserializer);
-            } else {
-              obj = JSON.parse(contents);
-            }
-            response.result = obj;
-          }
-          response.headers = res.message.headers;
-        } catch (err) {
-        }
-        if (statusCode > 299) {
-          let msg;
-          if (obj && obj.message) {
-            msg = obj.message;
-          } else if (contents && contents.length > 0) {
-            msg = contents;
-          } else {
-            msg = "Failed request: (" + statusCode + ")";
-          }
-          let err = new HttpClientError(msg, statusCode);
-          err.result = response.result;
-          reject(err);
-        } else {
-          resolve(response);
-        }
-      });
-    }
-  };
-  exports2.HttpClient = HttpClient;
 });
 
 // node_modules/uuid/lib/rng.js
@@ -5841,7 +5997,7 @@ var require_tool_cache = __commonJS((exports2) => {
   exports2.evaluateVersions = exports2.isExplicitVersion = exports2.findFromManifest = exports2.getManifestFromRepo = exports2.findAllVersions = exports2.find = exports2.cacheFile = exports2.cacheDir = exports2.extractZip = exports2.extractXar = exports2.extractTar = exports2.extract7z = exports2.downloadTool = exports2.HTTPError = void 0;
   var core4 = __importStar(require_core());
   var io = __importStar(require_io());
-  var fs2 = __importStar(require("fs"));
+  var fs3 = __importStar(require("fs"));
   var mm = __importStar(require_manifest());
   var os3 = __importStar(require("os"));
   var path5 = __importStar(require("path"));
@@ -5889,7 +6045,7 @@ var require_tool_cache = __commonJS((exports2) => {
   exports2.downloadTool = downloadTool2;
   function downloadToolAttempt(url, dest, auth, headers) {
     return __awaiter(this, void 0, void 0, function* () {
-      if (fs2.existsSync(dest)) {
+      if (fs3.existsSync(dest)) {
         throw new Error(`Destination file path ${dest} already exists`);
       }
       const http = new httpm.HttpClient(userAgent, [], {
@@ -5913,7 +6069,7 @@ var require_tool_cache = __commonJS((exports2) => {
       const readStream = responseMessageFactory();
       let succeeded = false;
       try {
-        yield pipeline(readStream, fs2.createWriteStream(dest));
+        yield pipeline(readStream, fs3.createWriteStream(dest));
         core4.debug("download complete");
         succeeded = true;
         return dest;
@@ -6125,11 +6281,11 @@ var require_tool_cache = __commonJS((exports2) => {
       arch2 = arch2 || os3.arch();
       core4.debug(`Caching tool ${tool} ${version} ${arch2}`);
       core4.debug(`source dir: ${sourceDir}`);
-      if (!fs2.statSync(sourceDir).isDirectory()) {
+      if (!fs3.statSync(sourceDir).isDirectory()) {
         throw new Error("sourceDir is not a directory");
       }
       const destPath = yield _createToolPath(tool, version, arch2);
-      for (const itemName of fs2.readdirSync(sourceDir)) {
+      for (const itemName of fs3.readdirSync(sourceDir)) {
         const s = path5.join(sourceDir, itemName);
         yield io.cp(s, destPath, {recursive: true});
       }
@@ -6144,7 +6300,7 @@ var require_tool_cache = __commonJS((exports2) => {
       arch2 = arch2 || os3.arch();
       core4.debug(`Caching tool ${tool} ${version} ${arch2}`);
       core4.debug(`source file: ${sourceFile}`);
-      if (!fs2.statSync(sourceFile).isFile()) {
+      if (!fs3.statSync(sourceFile).isFile()) {
         throw new Error("sourceFile is not a file");
       }
       const destFolder = yield _createToolPath(tool, version, arch2);
@@ -6174,7 +6330,7 @@ var require_tool_cache = __commonJS((exports2) => {
       versionSpec = semver3.clean(versionSpec) || "";
       const cachePath = path5.join(_getCacheDirectory(), toolName, versionSpec, arch2);
       core4.debug(`checking cache: ${cachePath}`);
-      if (fs2.existsSync(cachePath) && fs2.existsSync(`${cachePath}.complete`)) {
+      if (fs3.existsSync(cachePath) && fs3.existsSync(`${cachePath}.complete`)) {
         core4.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch2}`);
         toolPath = cachePath;
       } else {
@@ -6188,12 +6344,12 @@ var require_tool_cache = __commonJS((exports2) => {
     const versions = [];
     arch2 = arch2 || os3.arch();
     const toolPath = path5.join(_getCacheDirectory(), toolName);
-    if (fs2.existsSync(toolPath)) {
-      const children = fs2.readdirSync(toolPath);
+    if (fs3.existsSync(toolPath)) {
+      const children = fs3.readdirSync(toolPath);
       for (const child of children) {
         if (isExplicitVersion(child)) {
           const fullPath = path5.join(toolPath, child, arch2 || "");
-          if (fs2.existsSync(fullPath) && fs2.existsSync(`${fullPath}.complete`)) {
+          if (fs3.existsSync(fullPath) && fs3.existsSync(`${fullPath}.complete`)) {
             versions.push(child);
           }
         }
@@ -6267,7 +6423,7 @@ var require_tool_cache = __commonJS((exports2) => {
   function _completeToolPath(tool, version, arch2) {
     const folderPath = path5.join(_getCacheDirectory(), tool, semver3.clean(version) || version, arch2 || "");
     const markerPath = `${folderPath}.complete`;
-    fs2.writeFileSync(markerPath, "");
+    fs3.writeFileSync(markerPath, "");
     core4.debug("finished caching tool");
   }
   function isExplicitVersion(versionSpec) {
@@ -6336,6 +6492,10 @@ var path = __toModule(require("path"));
 var semver = __toModule(require_semver2());
 var IS_WINDOWS = process.platform === "win32";
 var IS_LINUX = process.platform === "linux";
+function isGhes() {
+  const ghUrl = new URL(process.env["GITHUB_SERVER_URL"] || "https://github.com");
+  return ghUrl.hostname.toUpperCase() !== "GITHUB.COM";
+}
 
 // node_modules/setup-python/src/find-python.ts
 var semver2 = __toModule(require_semver2());
@@ -6391,10 +6551,6 @@ async function installCpythonFromRelease(release) {
   }
   core.info("Execute installation script");
   await installPython(pythonExtractedFolder);
-}
-function isGhes() {
-  const ghUrl = new URL(process.env["GITHUB_SERVER_URL"] || "https://github.com");
-  return ghUrl.hostname.toUpperCase() !== "GITHUB.COM";
 }
 
 // node_modules/setup-python/src/find-python.ts
@@ -6500,8 +6656,10 @@ async function findPythonVersion(version, architecture) {
 // src/setup-pdm.ts
 var os2 = __toModule(require("os"));
 var import_child_process = __toModule(require("child_process"));
+var import_fs2 = __toModule(require("fs"));
 var import_path = __toModule(require("path"));
 var INSTALL_VERSION = "3.8";
+var GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
 function getPep582Path() {
   const installDir = process.env.pythonLocation || "";
   if (IS_WINDOWS) {
@@ -6513,8 +6671,9 @@ function getPep582Path() {
 async function run() {
   const arch2 = core3.getInput("architecture") || os2.arch();
   const pdmVersion = core3.getInput("version");
-  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : "pdm";
-  const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage, "toml"];
+  const ref = core3.getInput("ref");
+  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : ref ? `pdm @ git+${GITHUB_REPO}@${ref}` : "pdm";
+  const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
   if (core3.getInput("prerelease") === "true") {
     cmdArgs.push("--pre");
   }
@@ -6527,8 +6686,10 @@ async function run() {
     if (core3.getInput("python-version") !== INSTALL_VERSION) {
       installedPython = await findPythonVersion(core3.getInput("python-version"), arch2);
     }
-    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "python.exe" : "bin/python");
-    await exec3.exec("pdm", ["use", "-f", pythonBin]);
+    const pythonBin = import_path.default.join(process.env.pythonLocation, IS_WINDOWS ? "python.exe" : "bin/python").replace(/\\/g, "/");
+    await import_fs2.promises.writeFile(".pdm.toml", `[python]
+path="${pythonBin}"
+`);
     const pdmVersionOutput = (await (0, import_child_process.exec)("pdm --version")).stdout;
     if (process.platform === "linux") {
       core3.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
