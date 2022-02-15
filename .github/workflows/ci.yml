@@ -16,11 +16,7 @@ jobs:
         uses: ./
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ failure() }}
-        with:
-          limit-access-to-actor: true
+          version: 1.12.7
 
       - name: Install dependencies
         run: pdm install -v
