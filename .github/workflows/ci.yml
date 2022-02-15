@@ -23,6 +23,7 @@ jobs:
         if: ${{ failure() }}
         with:
           limit-access-to-actor: true
+          sudo: false
 
       - name: Install dependencies
         run: pdm install -v
