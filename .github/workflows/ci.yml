@@ -16,7 +16,7 @@ jobs:
         uses: ./
         with:
           python-version: ${{ matrix.python-version }}
-          version: 1.12.7
+          version: 1.12.8
 
       - name: Install dependencies
         run: pdm install -v
