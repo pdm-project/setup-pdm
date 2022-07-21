@@ -24,11 +24,14 @@ class TestActionSuite(unittest.TestCase):
         python_version = ".".join(map(str, sys.version_info[:2]))
         for package in PACKAGE_MAP.values():
             if package != PACKAGE_MAP[python_version]:
+                try:
+                    print(importlib.import_module(package))
+                except ImportError:
+                    pass
                 self.assertRaises(
                     ModuleNotFoundError,
                     importlib.import_module,
                     package,
-                    msg=f"Package {package} should not be installed",
                 )
             else:
                 importlib.import_module(package)
