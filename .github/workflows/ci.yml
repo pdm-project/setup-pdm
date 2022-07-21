@@ -18,9 +18,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pdm install -v
+        run: pdm install -v && pdm info
 
       - name: Verify python version
-        run: python test.py
+        run: pdm run python test.py
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
