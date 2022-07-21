@@ -28,6 +28,7 @@ class TestActionSuite(unittest.TestCase):
                     ModuleNotFoundError,
                     importlib.import_module,
                     package,
+                    msg=f"Package {package} should not be installed",
                 )
             else:
                 importlib.import_module(package)
