@@ -11,7 +11,7 @@ jobs:
         os: ["windows-latest", "ubuntu-latest"]
     name: Test the action
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup PDM
         uses: ./
         with:

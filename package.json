@@ -13,6 +13,7 @@
   "dependencies": {
     "@actions/core": "^1.2.6",
     "@actions/exec": "^1.0.4",
+    "semver": "^7.3.7",
     "setup-python": "actions/setup-python"
   },
   "devDependencies": {
