@@ -9,7 +9,6 @@ import semIntersect from 'semver/ranges/intersects'
 import { findPythonVersion } from './utils'
 
 const PDM_PYTHON_REQUIRES = '>=3.7'
-const FALLBACK_INSTALL_VERSION = '3.10'
 const GITHUB_REPO = 'https://github.com/pdm-project/pdm.git'
 
 function getPep582Path(version: string): string {
@@ -34,7 +33,7 @@ async function run(): Promise<void> {
     cmdArgs.push('--pre')
   }
   try {
-    let installedPython = await findPythonVersion(versionCompatible ? pythonVersion : FALLBACK_INSTALL_VERSION, arch)
+    let installedPython = await findPythonVersion(versionCompatible ? pythonVersion : PDM_PYTHON_REQUIRES, arch)
     await exec.exec('python', cmdArgs)
     if (core.getInput('enable-pep582') === 'true') {
       core.exportVariable('PYTHONPATH', getPep582Path(installedPython))

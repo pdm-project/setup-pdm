@@ -14,7 +14,7 @@ export async function findPythonVersion(version: string, architecture: string): 
     const installed = await findPyPyVersion(
       version,
       architecture,
-      false,
+      true,
       false
     );
     pythonVersion = `${installed.resolvedPyPyVersion}-${installed.resolvedPythonVersion}`;
@@ -26,7 +26,7 @@ export async function findPythonVersion(version: string, architecture: string): 
     const installed = await useCpythonVersion(
       version,
       architecture,
-      false,
+      true,
       false
     );
     pythonVersion = installed.version;
