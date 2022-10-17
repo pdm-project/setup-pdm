@@ -2,3 +2,4 @@ node_modules/
 yarn.lock
 __pypackages__/
 .pdm.toml
+pnpm-lock.yaml
