@@ -68865,7 +68865,7 @@ function findPythonVersion(version, architecture) {
       const installed = yield findPyPyVersion(
         version,
         architecture,
-        false,
+        true,
         false
       );
       pythonVersion = `${installed.resolvedPyPyVersion}-${installed.resolvedPythonVersion}`;
@@ -68877,7 +68877,7 @@ function findPythonVersion(version, architecture) {
       const installed = yield useCpythonVersion(
         version,
         architecture,
-        false,
+        true,
         false
       );
       pythonVersion = installed.version;
@@ -68889,7 +68889,6 @@ function findPythonVersion(version, architecture) {
 
 // src/setup-pdm.ts
 var PDM_PYTHON_REQUIRES = ">=3.7";
-var FALLBACK_INSTALL_VERSION = "3.10";
 var GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
 function getPep582Path(version) {
   const installDir = process.env.pythonLocation || "";
@@ -68913,7 +68912,7 @@ function run() {
       cmdArgs.push("--pre");
     }
     try {
-      let installedPython = yield findPythonVersion(versionCompatible ? pythonVersion : FALLBACK_INSTALL_VERSION, arch2);
+      let installedPython = yield findPythonVersion(versionCompatible ? pythonVersion : PDM_PYTHON_REQUIRES, arch2);
       yield exec6.exec("python", cmdArgs);
       if (core7.getInput("enable-pep582") === "true") {
         core7.exportVariable("PYTHONPATH", getPep582Path(installedPython));
