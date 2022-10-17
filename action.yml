@@ -29,7 +29,7 @@ inputs:
     default: "true"
     required: false
 runs:
-  using: "node12"
+  using: "node16"
   main: "dist/setup-pdm.js"
 branding:
   icon: "code"
