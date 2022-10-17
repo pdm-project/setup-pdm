@@ -4,7 +4,7 @@
   "description": "The GitHub Action for using pdm as the package manager",
   "main": "dist/setup-pdm.js",
   "scripts": {
-    "build": "ncc build -o dist/setup-pdm.js src/setup-pdm.ts"
+    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --outfile=dist/setup-pdm.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
   "devDependencies": {
     "@types/node": "^18.11.0",
     "@types/semver": "^7.3.12",
-    "@vercel/ncc": "^0.34.0",
+    "esbuild": "^0.15.11",
     "typescript": "^4.8.4"
   }
 }

@@ -1,12 +1,12 @@
-import * as core from '@actions/core'
-import * as exec from '@actions/exec'
-import * as setupPython from 'setup-python/src/find-python'
-import { IS_WINDOWS } from 'setup-python/src/utils'
 import * as os from 'os'
 import { promises as fs } from 'fs'
 import path from 'path'
+import * as core from '@actions/core'
+import * as exec from '@actions/exec'
+import { IS_WINDOWS } from 'setup-python/src/utils'
 import semParse from 'semver/functions/parse'
 import semIntersect from 'semver/ranges/intersects'
+import { findPythonVersion } from './utils'
 
 const PDM_PYTHON_REQUIRES = '>=3.7'
 const FALLBACK_INSTALL_VERSION = '3.10'
@@ -34,13 +34,13 @@ async function run(): Promise<void> {
     cmdArgs.push('--pre')
   }
   try {
-    let installedPython = await setupPython.findPythonVersion(versionCompatible ? pythonVersion : FALLBACK_INSTALL_VERSION, arch)
+    let installedPython = await findPythonVersion(versionCompatible ? pythonVersion : FALLBACK_INSTALL_VERSION, arch)
     await exec.exec('python', cmdArgs)
     if (core.getInput('enable-pep582') === 'true') {
-      core.exportVariable('PYTHONPATH', getPep582Path(installedPython.version))
+      core.exportVariable('PYTHONPATH', getPep582Path(installedPython))
     }
     if (!versionCompatible) {
-      installedPython = await setupPython.findPythonVersion(pythonVersion, arch)
+      installedPython = await findPythonVersion(pythonVersion, arch)
     }
     const pythonBin = path.join(process.env.pythonLocation as string, IS_WINDOWS ? 'python.exe' : 'bin/python').replace(/\\/g, '/')
     await fs.writeFile('.pdm.toml', `[python]\npath="${pythonBin}"\n`)
@@ -49,7 +49,7 @@ async function run(): Promise<void> {
       // See https://github.com/actions/virtual-environments/issues/2803
       core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1')
     }
-    core.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython.version}`)
+    core.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython}`)
     const matchersPath = path.join(__dirname, '..', '.github')
     core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`)
   } catch (error: any) {
