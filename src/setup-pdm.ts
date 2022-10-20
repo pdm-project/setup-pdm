@@ -40,8 +40,8 @@ async function run(): Promise<void> {
   // Use the default python version installed with the runner
   try {
     await exec.exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
-    const installOutput = JSON.parse(process.env.PDM_INSTALL_OUTPUT!) as InstallOutput
     core.debug(`install output: ${process.env.PDM_INSTALL_SCRIPT_OUTPUT}`)
+    const installOutput = JSON.parse(process.env.PDM_INSTALL_SCRIPT_OUTPUT!) as InstallOutput
     core.setOutput('pdm-version', installOutput.pdm_version)
     core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
     core.addPath(path.dirname(installOutput.pdm_bin))

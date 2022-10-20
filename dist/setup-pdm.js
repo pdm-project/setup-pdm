@@ -76354,8 +76354,8 @@ function run() {
     }
     try {
       yield exec6.exec("python", cmdArgs, { input: yield fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
-      const installOutput = JSON.parse(process.env.PDM_INSTALL_OUTPUT);
       core7.debug(`install output: ${process.env.PDM_INSTALL_SCRIPT_OUTPUT}`);
+      const installOutput = JSON.parse(process.env.PDM_INSTALL_SCRIPT_OUTPUT);
       core7.setOutput("pdm-version", installOutput.pdm_version);
       core7.setOutput("pdm-bin", import_path.default.join(installOutput.install_location, installOutput.pdm_bin));
       core7.addPath(import_path.default.dirname(installOutput.pdm_bin));
