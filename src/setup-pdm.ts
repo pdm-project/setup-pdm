@@ -4,13 +4,18 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import { IS_WINDOWS } from 'setup-python/src/utils'
 import semParse from 'semver/functions/parse'
-import { findPythonVersion } from './utils'
+import * as utils from './utils'
 
-const GITHUB_REPO = 'https://github.com/pdm-project/pdm.git'
+const INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py'
+interface InstallOutput {
+  pdm_version: string;
+  pdm_bin: string;
+  install_python_version: string;
+  install_location: string;
+}
 
-function getPep582Path(version: string): string {
-  const installDir = process.env.pythonLocation || ''
-  const parsedVersion = semParse(version)!
+function getPep582Path(installDir: string, pythonVersion: string): string {
+  const parsedVersion = semParse(pythonVersion)!
   if (IS_WINDOWS) {
     return path.resolve(installDir, 'Lib/site-packages/pdm/pep582')
   } else {
@@ -22,26 +27,35 @@ async function run(): Promise<void> {
   const arch = core.getInput('architecture') || os.arch()
   const pdmVersion = core.getInput('version')
   const pythonVersion = core.getInput('python-version')
-  const ref = core.getInput('ref')
-  const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : ref ? `pdm @ git+${GITHUB_REPO}@${ref}` : 'pdm'
-  const cmdArgs = ['-m', 'pip', 'install', '-U', pdmPackage]
+  const cmdArgs = []
   if (core.getInput('prerelease') === 'true') {
-    cmdArgs.push('--pre')
+    cmdArgs.push('--prerelease')
   }
-  await exec.exec('python', cmdArgs)
+  if (pdmVersion) {
+    cmdArgs.push('--version', pdmVersion)
+  }
+  if (cmdArgs.length > 0) {
+    cmdArgs.splice(0, 0, '-')
+  }
+  // Use the default python version installed with the runner
   try {
-    let installedPython = await findPythonVersion(pythonVersion, arch)
-    core.info(`pythonLocation: ${process.env.pythonLocation}`)
+    await exec.exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
+    const installOutput = JSON.parse(process.env.PDM_INSTALL_OUTPUT!) as InstallOutput
+    core.debug(`install output: ${process.env.PDM_INSTALL_SCRIPT_OUTPUT}`)
+    core.setOutput('pdm-version', installOutput.pdm_version)
+    core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
+    core.addPath(path.dirname(installOutput.pdm_bin))
     if (core.getInput('enable-pep582') === 'true') {
-      core.exportVariable('PYTHONPATH', getPep582Path(installedPython))
+      core.exportVariable('PYTHONPATH', getPep582Path(installOutput.install_location, installOutput.install_python_version))
     }
 
-    const { stdout: pdmVersionOutput } = await exec.getExecOutput('pdm --version')
+    const installedPython = await utils.findPythonVersion(pythonVersion, arch)
+
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
       core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1')
     }
-    core.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython}`)
+    core.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`)
     const matchersPath = path.join(__dirname, '..', '.github')
     core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`)
   } catch (error: any) {

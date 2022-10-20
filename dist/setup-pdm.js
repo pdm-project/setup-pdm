@@ -876,7 +876,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers = connectOptions.headers || {};
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
-      debug4("making CONNECT request");
+      debug5("making CONNECT request");
       var connectReq = self2.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
@@ -896,7 +896,7 @@ var require_tunnel = __commonJS({
         connectReq.removeAllListeners();
         socket.removeAllListeners();
         if (res.statusCode !== 200) {
-          debug4(
+          debug5(
             "tunneling socket could not be established, statusCode=%d",
             res.statusCode
           );
@@ -908,7 +908,7 @@ var require_tunnel = __commonJS({
           return;
         }
         if (head.length > 0) {
-          debug4("got illegal response body from proxy");
+          debug5("got illegal response body from proxy");
           socket.destroy();
           var error2 = new Error("got illegal response body from proxy");
           error2.code = "ECONNRESET";
@@ -916,13 +916,13 @@ var require_tunnel = __commonJS({
           self2.removeSocket(placeholder);
           return;
         }
-        debug4("tunneling connection has established");
+        debug5("tunneling connection has established");
         self2.sockets[self2.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
         connectReq.removeAllListeners();
-        debug4(
+        debug5(
           "tunneling socket could not be established, cause=%s\n",
           cause.message,
           cause.stack
@@ -984,9 +984,9 @@ var require_tunnel = __commonJS({
       }
       return target;
     }
-    var debug4;
+    var debug5;
     if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-      debug4 = function() {
+      debug5 = function() {
         var args = Array.prototype.slice.call(arguments);
         if (typeof args[0] === "string") {
           args[0] = "TUNNEL: " + args[0];
@@ -996,10 +996,10 @@ var require_tunnel = __commonJS({
         console.error.apply(console, args);
       };
     } else {
-      debug4 = function() {
+      debug5 = function() {
       };
     }
-    exports.debug = debug4;
+    exports.debug = debug5;
   }
 });
 
@@ -2058,7 +2058,7 @@ var require_core = __commonJS({
       command_1.issueCommand("add-mask", {}, secret);
     }
     exports.setSecret = setSecret;
-    function addPath3(inputPath) {
+    function addPath4(inputPath) {
       const filePath = process.env["GITHUB_PATH"] || "";
       if (filePath) {
         file_command_1.issueFileCommand("PATH", inputPath);
@@ -2067,7 +2067,7 @@ var require_core = __commonJS({
       }
       process.env["PATH"] = `${inputPath}${path7.delimiter}${process.env["PATH"]}`;
     }
-    exports.addPath = addPath3;
+    exports.addPath = addPath4;
     function getInput3(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
@@ -2099,7 +2099,7 @@ var require_core = __commonJS({
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.getBooleanInput = getBooleanInput;
-    function setOutput3(name, value) {
+    function setOutput4(name, value) {
       const filePath = process.env["GITHUB_OUTPUT"] || "";
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
@@ -2107,7 +2107,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       process.stdout.write(os3.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
-    exports.setOutput = setOutput3;
+    exports.setOutput = setOutput4;
     function setCommandEcho(enabled) {
       command_1.issue("echo", enabled ? "on" : "off");
     }
@@ -2121,10 +2121,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       return process.env["RUNNER_DEBUG"] === "1";
     }
     exports.isDebug = isDebug;
-    function debug4(message) {
+    function debug5(message) {
       command_1.issueCommand("debug", {}, message);
     }
-    exports.debug = debug4;
+    exports.debug = debug5;
     function error2(message, properties = {}) {
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -3215,7 +3215,7 @@ var require_exec = __commonJS({
       });
     }
     exports.exec = exec8;
-    function getExecOutput3(commandLine, args, options) {
+    function getExecOutput2(commandLine, args, options) {
       var _a, _b;
       return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
@@ -3247,7 +3247,7 @@ var require_exec = __commonJS({
         };
       });
     }
-    exports.getExecOutput = getExecOutput3;
+    exports.getExecOutput = getExecOutput2;
   }
 });
 
@@ -3911,7 +3911,7 @@ var require_minimatch = __commonJS({
       this.parseNegate();
       var set = this.globSet = this.braceExpand();
       if (options.debug)
-        this.debug = function debug4() {
+        this.debug = function debug5() {
           console.error.apply(console, arguments);
         };
       this.debug(this.pattern, set);
@@ -4981,15 +4981,15 @@ var require_glob = __commonJS({
 var require_semver = __commonJS({
   "node_modules/.pnpm/semver@6.3.0/node_modules/semver/semver.js"(exports, module2) {
     exports = module2.exports = SemVer;
-    var debug4;
+    var debug5;
     if (typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG)) {
-      debug4 = function() {
+      debug5 = function() {
         var args = Array.prototype.slice.call(arguments, 0);
         args.unshift("SEMVER");
         console.log.apply(console, args);
       };
     } else {
-      debug4 = function() {
+      debug5 = function() {
       };
     }
     exports.SEMVER_SPEC_VERSION = "2.0.0";
@@ -5086,7 +5086,7 @@ var require_semver = __commonJS({
     tok("STAR");
     src[t.STAR] = "(<|>)?=?\\s*\\*";
     for (i = 0; i < R; i++) {
-      debug4(i, src[i]);
+      debug5(i, src[i]);
       if (!re[i]) {
         re[i] = new RegExp(src[i]);
       }
@@ -5152,7 +5152,7 @@ var require_semver = __commonJS({
       if (!(this instanceof SemVer)) {
         return new SemVer(version, options);
       }
-      debug4("SemVer", version, options);
+      debug5("SemVer", version, options);
       this.options = options;
       this.loose = !!options.loose;
       var m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL]);
@@ -5199,7 +5199,7 @@ var require_semver = __commonJS({
       return this.version;
     };
     SemVer.prototype.compare = function(other) {
-      debug4("SemVer.compare", this.version, this.options, other);
+      debug5("SemVer.compare", this.version, this.options, other);
       if (!(other instanceof SemVer)) {
         other = new SemVer(other, this.options);
       }
@@ -5226,7 +5226,7 @@ var require_semver = __commonJS({
       do {
         var a = this.prerelease[i2];
         var b = other.prerelease[i2];
-        debug4("prerelease compare", i2, a, b);
+        debug5("prerelease compare", i2, a, b);
         if (a === void 0 && b === void 0) {
           return 0;
         } else if (b === void 0) {
@@ -5248,7 +5248,7 @@ var require_semver = __commonJS({
       do {
         var a = this.build[i2];
         var b = other.build[i2];
-        debug4("prerelease compare", i2, a, b);
+        debug5("prerelease compare", i2, a, b);
         if (a === void 0 && b === void 0) {
           return 0;
         } else if (b === void 0) {
@@ -5507,7 +5507,7 @@ var require_semver = __commonJS({
       if (!(this instanceof Comparator)) {
         return new Comparator(comp, options);
       }
-      debug4("comparator", comp, options);
+      debug5("comparator", comp, options);
       this.options = options;
       this.loose = !!options.loose;
       this.parse(comp);
@@ -5516,7 +5516,7 @@ var require_semver = __commonJS({
       } else {
         this.value = this.operator + this.semver.version;
       }
-      debug4("comp", this);
+      debug5("comp", this);
     }
     var ANY = {};
     Comparator.prototype.parse = function(comp) {
@@ -5539,7 +5539,7 @@ var require_semver = __commonJS({
       return this.value;
     };
     Comparator.prototype.test = function(version) {
-      debug4("Comparator.test", version, this.options.loose);
+      debug5("Comparator.test", version, this.options.loose);
       if (this.semver === ANY || version === ANY) {
         return true;
       }
@@ -5633,9 +5633,9 @@ var require_semver = __commonJS({
       range = range.trim();
       var hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
       range = range.replace(hr, hyphenReplace);
-      debug4("hyphen replace", range);
+      debug5("hyphen replace", range);
       range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
-      debug4("comparator trim", range, re[t.COMPARATORTRIM]);
+      debug5("comparator trim", range, re[t.COMPARATORTRIM]);
       range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
       range = range.replace(re[t.CARETTRIM], caretTrimReplace);
       range = range.split(/\s+/).join(" ");
@@ -5688,15 +5688,15 @@ var require_semver = __commonJS({
       });
     }
     function parseComparator(comp, options) {
-      debug4("comp", comp, options);
+      debug5("comp", comp, options);
       comp = replaceCarets(comp, options);
-      debug4("caret", comp);
+      debug5("caret", comp);
       comp = replaceTildes(comp, options);
-      debug4("tildes", comp);
+      debug5("tildes", comp);
       comp = replaceXRanges(comp, options);
-      debug4("xrange", comp);
+      debug5("xrange", comp);
       comp = replaceStars(comp, options);
-      debug4("stars", comp);
+      debug5("stars", comp);
       return comp;
     }
     function isX(id) {
@@ -5710,7 +5710,7 @@ var require_semver = __commonJS({
     function replaceTilde(comp, options) {
       var r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
       return comp.replace(r, function(_, M, m, p, pr) {
-        debug4("tilde", comp, _, M, m, p, pr);
+        debug5("tilde", comp, _, M, m, p, pr);
         var ret;
         if (isX(M)) {
           ret = "";
@@ -5719,12 +5719,12 @@ var require_semver = __commonJS({
         } else if (isX(p)) {
           ret = ">=" + M + "." + m + ".0 <" + M + "." + (+m + 1) + ".0";
         } else if (pr) {
-          debug4("replaceTilde pr", pr);
+          debug5("replaceTilde pr", pr);
           ret = ">=" + M + "." + m + "." + p + "-" + pr + " <" + M + "." + (+m + 1) + ".0";
         } else {
           ret = ">=" + M + "." + m + "." + p + " <" + M + "." + (+m + 1) + ".0";
         }
-        debug4("tilde return", ret);
+        debug5("tilde return", ret);
         return ret;
       });
     }
@@ -5734,10 +5734,10 @@ var require_semver = __commonJS({
       }).join(" ");
     }
     function replaceCaret(comp, options) {
-      debug4("caret", comp, options);
+      debug5("caret", comp, options);
       var r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
       return comp.replace(r, function(_, M, m, p, pr) {
-        debug4("caret", comp, _, M, m, p, pr);
+        debug5("caret", comp, _, M, m, p, pr);
         var ret;
         if (isX(M)) {
           ret = "";
@@ -5750,7 +5750,7 @@ var require_semver = __commonJS({
             ret = ">=" + M + "." + m + ".0 <" + (+M + 1) + ".0.0";
           }
         } else if (pr) {
-          debug4("replaceCaret pr", pr);
+          debug5("replaceCaret pr", pr);
           if (M === "0") {
             if (m === "0") {
               ret = ">=" + M + "." + m + "." + p + "-" + pr + " <" + M + "." + m + "." + (+p + 1);
@@ -5761,7 +5761,7 @@ var require_semver = __commonJS({
             ret = ">=" + M + "." + m + "." + p + "-" + pr + " <" + (+M + 1) + ".0.0";
           }
         } else {
-          debug4("no pr");
+          debug5("no pr");
           if (M === "0") {
             if (m === "0") {
               ret = ">=" + M + "." + m + "." + p + " <" + M + "." + m + "." + (+p + 1);
@@ -5772,12 +5772,12 @@ var require_semver = __commonJS({
             ret = ">=" + M + "." + m + "." + p + " <" + (+M + 1) + ".0.0";
           }
         }
-        debug4("caret return", ret);
+        debug5("caret return", ret);
         return ret;
       });
     }
     function replaceXRanges(comp, options) {
-      debug4("replaceXRanges", comp, options);
+      debug5("replaceXRanges", comp, options);
       return comp.split(/\s+/).map(function(comp2) {
         return replaceXRange(comp2, options);
       }).join(" ");
@@ -5786,7 +5786,7 @@ var require_semver = __commonJS({
       comp = comp.trim();
       var r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
       return comp.replace(r, function(ret, gtlt, M, m, p, pr) {
-        debug4("xRange", comp, ret, gtlt, M, m, p, pr);
+        debug5("xRange", comp, ret, gtlt, M, m, p, pr);
         var xM = isX(M);
         var xm = xM || isX(m);
         var xp = xm || isX(p);
@@ -5830,12 +5830,12 @@ var require_semver = __commonJS({
         } else if (xp) {
           ret = ">=" + M + "." + m + ".0" + pr + " <" + M + "." + (+m + 1) + ".0" + pr;
         }
-        debug4("xRange return", ret);
+        debug5("xRange return", ret);
         return ret;
       });
     }
     function replaceStars(comp, options) {
-      debug4("replaceStars", comp, options);
+      debug5("replaceStars", comp, options);
       return comp.trim().replace(re[t.STAR], "");
     }
     function hyphenReplace($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr, tb) {
@@ -5887,7 +5887,7 @@ var require_semver = __commonJS({
       }
       if (version.prerelease.length && !options.includePrerelease) {
         for (i2 = 0; i2 < set.length; i2++) {
-          debug4(set[i2].semver);
+          debug5(set[i2].semver);
           if (set[i2].semver === ANY) {
             continue;
           }
@@ -13087,14 +13087,14 @@ var require_dist4 = __commonJS({
       return result;
     }
     function createDebugger(namespace) {
-      const newDebugger = Object.assign(debug4, {
+      const newDebugger = Object.assign(debug5, {
         enabled: enabled(namespace),
         destroy,
         log: debugObj.log,
         namespace,
         extend
       });
-      function debug4(...args) {
+      function debug5(...args) {
         if (!newDebugger.enabled) {
           return;
         }
@@ -64653,9 +64653,9 @@ var require_constants2 = __commonJS({
 // node_modules/.pnpm/semver@7.3.8/node_modules/semver/internal/debug.js
 var require_debug = __commonJS({
   "node_modules/.pnpm/semver@7.3.8/node_modules/semver/internal/debug.js"(exports, module2) {
-    var debug4 = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
+    var debug5 = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
     };
-    module2.exports = debug4;
+    module2.exports = debug5;
   }
 });
 
@@ -64663,7 +64663,7 @@ var require_debug = __commonJS({
 var require_re = __commonJS({
   "node_modules/.pnpm/semver@7.3.8/node_modules/semver/internal/re.js"(exports, module2) {
     var { MAX_SAFE_COMPONENT_LENGTH } = require_constants2();
-    var debug4 = require_debug();
+    var debug5 = require_debug();
     exports = module2.exports = {};
     var re = exports.re = [];
     var src = exports.src = [];
@@ -64671,7 +64671,7 @@ var require_re = __commonJS({
     var R = 0;
     var createToken = (name, value, isGlobal) => {
       const index = R++;
-      debug4(name, index, value);
+      debug5(name, index, value);
       t[name] = index;
       src[index] = value;
       re[index] = new RegExp(value, isGlobal ? "g" : void 0);
@@ -64758,7 +64758,7 @@ var require_identifiers = __commonJS({
 // node_modules/.pnpm/semver@7.3.8/node_modules/semver/classes/semver.js
 var require_semver3 = __commonJS({
   "node_modules/.pnpm/semver@7.3.8/node_modules/semver/classes/semver.js"(exports, module2) {
-    var debug4 = require_debug();
+    var debug5 = require_debug();
     var { MAX_LENGTH, MAX_SAFE_INTEGER } = require_constants2();
     var { re, t } = require_re();
     var parseOptions = require_parse_options();
@@ -64780,7 +64780,7 @@ var require_semver3 = __commonJS({
             `version is longer than ${MAX_LENGTH} characters`
           );
         }
-        debug4("SemVer", version, options);
+        debug5("SemVer", version, options);
         this.options = options;
         this.loose = !!options.loose;
         this.includePrerelease = !!options.includePrerelease;
@@ -64828,7 +64828,7 @@ var require_semver3 = __commonJS({
         return this.version;
       }
       compare(other) {
-        debug4("SemVer.compare", this.version, this.options, other);
+        debug5("SemVer.compare", this.version, this.options, other);
         if (!(other instanceof SemVer)) {
           if (typeof other === "string" && other === this.version) {
             return 0;
@@ -64861,7 +64861,7 @@ var require_semver3 = __commonJS({
         do {
           const a = this.prerelease[i];
           const b = other.prerelease[i];
-          debug4("prerelease compare", i, a, b);
+          debug5("prerelease compare", i, a, b);
           if (a === void 0 && b === void 0) {
             return 0;
           } else if (b === void 0) {
@@ -64883,7 +64883,7 @@ var require_semver3 = __commonJS({
         do {
           const a = this.build[i];
           const b = other.build[i];
-          debug4("prerelease compare", i, a, b);
+          debug5("prerelease compare", i, a, b);
           if (a === void 0 && b === void 0) {
             return 0;
           } else if (b === void 0) {
@@ -66040,20 +66040,20 @@ var require_range = __commonJS({
         const loose = this.options.loose;
         const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
         range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
-        debug4("hyphen replace", range);
+        debug5("hyphen replace", range);
         range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
-        debug4("comparator trim", range);
+        debug5("comparator trim", range);
         range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
         range = range.replace(re[t.CARETTRIM], caretTrimReplace);
         range = range.split(/\s+/).join(" ");
         let rangeList = range.split(" ").map((comp) => parseComparator(comp, this.options)).join(" ").split(/\s+/).map((comp) => replaceGTE0(comp, this.options));
         if (loose) {
           rangeList = rangeList.filter((comp) => {
-            debug4("loose invalid filter", comp, this.options);
+            debug5("loose invalid filter", comp, this.options);
             return !!comp.match(re[t.COMPARATORLOOSE]);
           });
         }
-        debug4("range list", rangeList);
+        debug5("range list", rangeList);
         const rangeMap = /* @__PURE__ */ new Map();
         const comparators = rangeList.map((comp) => new Comparator(comp, this.options));
         for (const comp of comparators) {
@@ -66107,7 +66107,7 @@ var require_range = __commonJS({
     var cache2 = new LRU({ max: 1e3 });
     var parseOptions = require_parse_options();
     var Comparator = require_comparator();
-    var debug4 = require_debug();
+    var debug5 = require_debug();
     var SemVer = require_semver3();
     var {
       re,
@@ -66131,15 +66131,15 @@ var require_range = __commonJS({
       return result;
     };
     var parseComparator = (comp, options) => {
-      debug4("comp", comp, options);
+      debug5("comp", comp, options);
       comp = replaceCarets(comp, options);
-      debug4("caret", comp);
+      debug5("caret", comp);
       comp = replaceTildes(comp, options);
-      debug4("tildes", comp);
+      debug5("tildes", comp);
       comp = replaceXRanges(comp, options);
-      debug4("xrange", comp);
+      debug5("xrange", comp);
       comp = replaceStars(comp, options);
-      debug4("stars", comp);
+      debug5("stars", comp);
       return comp;
     };
     var isX = (id) => !id || id.toLowerCase() === "x" || id === "*";
@@ -66149,7 +66149,7 @@ var require_range = __commonJS({
     var replaceTilde = (comp, options) => {
       const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
       return comp.replace(r, (_, M, m, p, pr) => {
-        debug4("tilde", comp, _, M, m, p, pr);
+        debug5("tilde", comp, _, M, m, p, pr);
         let ret;
         if (isX(M)) {
           ret = "";
@@ -66158,12 +66158,12 @@ var require_range = __commonJS({
         } else if (isX(p)) {
           ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
         } else if (pr) {
-          debug4("replaceTilde pr", pr);
+          debug5("replaceTilde pr", pr);
           ret = `>=${M}.${m}.${p}-${pr} <${M}.${+m + 1}.0-0`;
         } else {
           ret = `>=${M}.${m}.${p} <${M}.${+m + 1}.0-0`;
         }
-        debug4("tilde return", ret);
+        debug5("tilde return", ret);
         return ret;
       });
     };
@@ -66171,11 +66171,11 @@ var require_range = __commonJS({
       return replaceCaret(c, options);
     }).join(" ");
     var replaceCaret = (comp, options) => {
-      debug4("caret", comp, options);
+      debug5("caret", comp, options);
       const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
       const z = options.includePrerelease ? "-0" : "";
       return comp.replace(r, (_, M, m, p, pr) => {
-        debug4("caret", comp, _, M, m, p, pr);
+        debug5("caret", comp, _, M, m, p, pr);
         let ret;
         if (isX(M)) {
           ret = "";
@@ -66188,7 +66188,7 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`;
           }
         } else if (pr) {
-          debug4("replaceCaret pr", pr);
+          debug5("replaceCaret pr", pr);
           if (M === "0") {
             if (m === "0") {
               ret = `>=${M}.${m}.${p}-${pr} <${M}.${m}.${+p + 1}-0`;
@@ -66199,7 +66199,7 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.${p}-${pr} <${+M + 1}.0.0-0`;
           }
         } else {
-          debug4("no pr");
+          debug5("no pr");
           if (M === "0") {
             if (m === "0") {
               ret = `>=${M}.${m}.${p}${z} <${M}.${m}.${+p + 1}-0`;
@@ -66210,12 +66210,12 @@ var require_range = __commonJS({
             ret = `>=${M}.${m}.${p} <${+M + 1}.0.0-0`;
           }
         }
-        debug4("caret return", ret);
+        debug5("caret return", ret);
         return ret;
       });
     };
     var replaceXRanges = (comp, options) => {
-      debug4("replaceXRanges", comp, options);
+      debug5("replaceXRanges", comp, options);
       return comp.split(/\s+/).map((c) => {
         return replaceXRange(c, options);
       }).join(" ");
@@ -66224,7 +66224,7 @@ var require_range = __commonJS({
       comp = comp.trim();
       const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
       return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
-        debug4("xRange", comp, ret, gtlt, M, m, p, pr);
+        debug5("xRange", comp, ret, gtlt, M, m, p, pr);
         const xM = isX(M);
         const xm = xM || isX(m);
         const xp = xm || isX(p);
@@ -66271,16 +66271,16 @@ var require_range = __commonJS({
         } else if (xp) {
           ret = `>=${M}.${m}.0${pr} <${M}.${+m + 1}.0-0`;
         }
-        debug4("xRange return", ret);
+        debug5("xRange return", ret);
         return ret;
       });
     };
     var replaceStars = (comp, options) => {
-      debug4("replaceStars", comp, options);
+      debug5("replaceStars", comp, options);
       return comp.trim().replace(re[t.STAR], "");
     };
     var replaceGTE0 = (comp, options) => {
-      debug4("replaceGTE0", comp, options);
+      debug5("replaceGTE0", comp, options);
       return comp.trim().replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], "");
     };
     var hyphenReplace = (incPr) => ($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr, tb) => {
@@ -66318,7 +66318,7 @@ var require_range = __commonJS({
       }
       if (version.prerelease.length && !options.includePrerelease) {
         for (let i = 0; i < set.length; i++) {
-          debug4(set[i].semver);
+          debug5(set[i].semver);
           if (set[i].semver === Comparator.ANY) {
             continue;
           }
@@ -66353,7 +66353,7 @@ var require_comparator = __commonJS({
             comp = comp.value;
           }
         }
-        debug4("comparator", comp, options);
+        debug5("comparator", comp, options);
         this.options = options;
         this.loose = !!options.loose;
         this.parse(comp);
@@ -66362,7 +66362,7 @@ var require_comparator = __commonJS({
         } else {
           this.value = this.operator + this.semver.version;
         }
-        debug4("comp", this);
+        debug5("comp", this);
       }
       parse(comp) {
         const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR];
@@ -66384,7 +66384,7 @@ var require_comparator = __commonJS({
         return this.value;
       }
       test(version) {
-        debug4("Comparator.test", version, this.options.loose);
+        debug5("Comparator.test", version, this.options.loose);
         if (this.semver === ANY || version === ANY) {
           return true;
         }
@@ -66431,7 +66431,7 @@ var require_comparator = __commonJS({
     var parseOptions = require_parse_options();
     var { re, t } = require_re();
     var cmp = require_cmp();
-    var debug4 = require_debug();
+    var debug5 = require_debug();
     var SemVer = require_semver3();
     var Range = require_range();
   }
@@ -68856,6 +68856,15 @@ function findPyPyInstallDirForWindows(pythonVersion) {
 function isPyPyVersion(versionSpec) {
   return versionSpec.startsWith("pypy");
 }
+function fetchUrlAsBuffer(url) {
+  return __async(this, null, function* () {
+    const response = yield fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}`);
+    }
+    return Buffer.from(yield response.arrayBuffer());
+  });
+}
 function findPythonVersion(version, architecture) {
   return __async(this, null, function* () {
     let pythonVersion = "";
@@ -68886,10 +68895,9 @@ function findPythonVersion(version, architecture) {
 }
 
 // src/setup-pdm.ts
-var GITHUB_REPO = "https://github.com/pdm-project/pdm.git";
-function getPep582Path(version) {
-  const installDir = process.env.pythonLocation || "";
-  const parsedVersion = (0, import_parse.default)(version);
+var INSTALL_SCRIPT_URL = "https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py";
+function getPep582Path(installDir, pythonVersion) {
+  const parsedVersion = (0, import_parse.default)(pythonVersion);
   if (IS_WINDOWS) {
     return import_path.default.resolve(installDir, "Lib/site-packages/pdm/pep582");
   } else {
@@ -68901,24 +68909,31 @@ function run() {
     const arch2 = core7.getInput("architecture") || os2.arch();
     const pdmVersion = core7.getInput("version");
     const pythonVersion = core7.getInput("python-version");
-    const ref = core7.getInput("ref");
-    const pdmPackage = pdmVersion ? `pdm==${pdmVersion}` : ref ? `pdm @ git+${GITHUB_REPO}@${ref}` : "pdm";
-    const cmdArgs = ["-m", "pip", "install", "-U", pdmPackage];
+    const cmdArgs = [];
     if (core7.getInput("prerelease") === "true") {
-      cmdArgs.push("--pre");
+      cmdArgs.push("--prerelease");
     }
-    yield exec6.exec("python", cmdArgs);
+    if (pdmVersion) {
+      cmdArgs.push("--version", pdmVersion);
+    }
+    if (cmdArgs.length > 0) {
+      cmdArgs.splice(0, 0, "-");
+    }
     try {
-      let installedPython = yield findPythonVersion(pythonVersion, arch2);
-      core7.info(`pythonLocation: ${process.env.pythonLocation}`);
+      yield exec6.exec("python", cmdArgs, { input: yield fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
+      const installOutput = JSON.parse(process.env.PDM_INSTALL_OUTPUT);
+      core7.debug(`install output: ${process.env.PDM_INSTALL_SCRIPT_OUTPUT}`);
+      core7.setOutput("pdm-version", installOutput.pdm_version);
+      core7.setOutput("pdm-bin", import_path.default.join(installOutput.install_location, installOutput.pdm_bin));
+      core7.addPath(import_path.default.dirname(installOutput.pdm_bin));
       if (core7.getInput("enable-pep582") === "true") {
-        core7.exportVariable("PYTHONPATH", getPep582Path(installedPython));
+        core7.exportVariable("PYTHONPATH", getPep582Path(installOutput.install_location, installOutput.install_python_version));
       }
-      const { stdout: pdmVersionOutput } = yield exec6.getExecOutput("pdm --version");
+      const installedPython = yield findPythonVersion(pythonVersion, arch2);
       if (process.platform === "linux") {
         core7.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
       }
-      core7.info(`Successfully setup ${pdmVersionOutput} with Python ${installedPython}`);
+      core7.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`);
       const matchersPath = import_path.default.join(__dirname, "..", ".github");
       core7.info(`##[add-matcher]${import_path.default.join(matchersPath, "python.json")}`);
     } catch (error2) {
