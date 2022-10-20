@@ -3,8 +3,16 @@ import { useCpythonVersion } from 'setup-python/src/find-python';
 import { findPyPyVersion } from 'setup-python/src/find-pypy';
 
 
-function isPyPyVersion(versionSpec: string) {
+function isPyPyVersion(versionSpec: string): boolean {
   return versionSpec.startsWith('pypy');
+}
+
+export async function fetchUrlAsBuffer(url: string): Promise<Buffer> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}`);
+  }
+  return Buffer.from(await response.arrayBuffer());
 }
 
 
