@@ -14,7 +14,7 @@ Include the action in your workflow yaml file with the following arguments:
 ```yaml
 steps:
     ...
-    - uses: pdm-project/setup-pdm@main
+    - uses: pdm-project/setup-pdm@v3
       name: Setup PDM
       with:
         python-version: 3.9  # Version range or exact version of a Python version to use, the same as actions/setup-python
@@ -43,4 +43,40 @@ outputs:
     description: "The installed PDM version."
   pdm-bin:
     description: "The absolute path to the PDM executable."
+```
+
+## Caches
+
+This action has a built-in cache support. You can use it like this:
+
+```yaml
+- uses: pdm-project/setup-pdm@v3
+  with:
+    python-version: 3.9
+    cache: true
+```
+
+The default path to calculate the cache key is `./pdm.lock`, you can change it by setting the `cache-dependency-path` input.
+
+**Using a list of file paths to cache dependencies**
+
+```yaml
+- uses: pdm-project/setup-pdm@v3
+  with:
+    python-version: 3.9
+    cache: true
+    cache-dependency-path: |
+      ./pdm.lock
+      ./pdm.new.lock
+```
+
+**Using a glob pattern to cache dependencies**
+
+```yaml
+```yaml
+- uses: pdm-project/setup-pdm@v3
+  with:
+    python-version: 3.9
+    cache: true
+    cache-dependency-path: '**/pdm.lock'
 ```

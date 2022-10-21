@@ -17,6 +17,7 @@ jobs:
         id: setup-pdm
         with:
           python-version: ${{ matrix.python-version }}
+          cache: true
 
       - name: Check output
         run: |
