@@ -27,21 +27,19 @@ async function run(): Promise<void> {
   const arch = core.getInput('architecture') || os.arch()
   const pdmVersion = core.getInput('version')
   const pythonVersion = core.getInput('python-version')
-  const cmdArgs = []
+  const cmdArgs = ['-']
   if (core.getInput('prerelease') === 'true') {
     cmdArgs.push('--prerelease')
   }
   if (pdmVersion) {
     cmdArgs.push('--version', pdmVersion)
   }
-  if (cmdArgs.length > 0) {
-    cmdArgs.splice(0, 0, '-')
-  }
+  cmdArgs.push('-o', 'install-output.json')
   // Use the default python version installed with the runner
   try {
     await exec.exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
-    core.debug(`install output: ${process.env.PDM_INSTALL_SCRIPT_OUTPUT}`)
-    const installOutput = JSON.parse(process.env.PDM_INSTALL_SCRIPT_OUTPUT!) as InstallOutput
+    const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'))
+    core.debug(`Install output: ${installOutput}`)
     core.setOutput('pdm-version', installOutput.pdm_version)
     core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
     core.addPath(path.dirname(installOutput.pdm_bin))

@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import got from 'got';
+import { promises as fs } from 'fs';
 import { useCpythonVersion } from 'setup-python/src/find-python';
 import { findPyPyVersion } from 'setup-python/src/find-pypy';
 
@@ -43,3 +44,8 @@ export async function findPythonVersion(version: string, architecture: string): 
     return installed.version;
   }
 }
+
+export async function readFile(filePath: string): Promise<string> {
+  return await fs.readFile(filePath, 'utf8');
+}
+
