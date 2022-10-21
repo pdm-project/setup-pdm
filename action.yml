@@ -15,10 +15,7 @@ inputs:
     default: ${{ github.token }}
     required: false
   version:
-    description: The version of PDM to install.
-    required: false
-  ref:
-    description: The Ref of GitHub Repository
+    description: The version of PDM to install, or 'head' to install from the main branch.
     required: false
   prerelease:
     description: Allow prerelease versions to be installed
@@ -28,6 +25,15 @@ inputs:
     description: "Enable PEP 582 package loading globally."
     default: "true"
     required: false
+outputs:
+  python-version:
+    description: "The installed Python or PyPy version. Useful when given a version range as input."
+  python-path:
+    description: "The absolute path to the Python or PyPy executable."
+  pdm-version:
+    description: "The installed PDM version."
+  pdm-bin:
+    description: "The absolute path to the PDM executable."
 runs:
   using: "node16"
   main: "dist/setup-pdm.js"

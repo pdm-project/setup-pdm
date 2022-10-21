@@ -14,8 +14,16 @@ jobs:
       - uses: actions/checkout@v3
       - name: Setup PDM
         uses: ./
+        id: setup-pdm
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Check output
+        run: |
+          echo ${{ steps.setup-pdm.outputs.pdm-bin }}
+          echo ${{ steps.setup-pdm.outputs.pdm-version }}
+          echo ${{ steps.setup-pdm.outputs.python-path }}
+          echo ${{ steps.setup-pdm.outputs.python-version }}
 
       - name: Install dependencies
         run: pdm install -v && pdm info
