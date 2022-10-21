@@ -2068,7 +2068,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput2(name, options) {
+    function getInput(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -2078,19 +2078,19 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports.getInput = getInput2;
+    exports.getInput = getInput;
     function getMultilineInput(name, options) {
-      const inputs = getInput2(name, options).split("\n").filter((x) => x !== "");
+      const inputs = getInput(name, options).split("\n").filter((x) => x !== "");
       if (options && options.trimWhitespace === false) {
         return inputs;
       }
       return inputs.map((input) => input.trim());
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name, options) {
+    function getBooleanInput2(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput2(name, options);
+      const val = getInput(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -2098,7 +2098,7 @@ var require_core = __commonJS({
       throw new TypeError(`Input does not meet YAML 1.2 "Core Schema" specification: ${name}
 Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
-    exports.getBooleanInput = getBooleanInput;
+    exports.getBooleanInput = getBooleanInput2;
     function setOutput(name, value) {
       const filePath = process.env["GITHUB_OUTPUT"] || "";
       if (filePath) {
@@ -43712,9 +43712,9 @@ var require_dist9 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+storage-blob@12.11.0/node_modules/@azure/storage-blob/dist/index.js
+// node_modules/.pnpm/@azure+storage-blob@12.12.0/node_modules/@azure/storage-blob/dist/index.js
 var require_dist10 = __commonJS({
-  "node_modules/.pnpm/@azure+storage-blob@12.11.0/node_modules/@azure/storage-blob/dist/index.js"(exports) {
+  "node_modules/.pnpm/@azure+storage-blob@12.12.0/node_modules/@azure/storage-blob/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var coreHttp = require_dist7();
@@ -52196,7 +52196,7 @@ var require_dist10 = __commonJS({
     var version = {
       parameterPath: "version",
       mapper: {
-        defaultValue: "2021-08-06",
+        defaultValue: "2021-10-04",
         isConstant: true,
         serializedName: "x-ms-version",
         type: {
@@ -56498,14 +56498,15 @@ var require_dist10 = __commonJS({
       serializer: xmlSerializer
     };
     var logger = logger$1.createClientLogger("storage-blob");
-    var SDK_VERSION = "12.11.0";
-    var SERVICE_VERSION = "2021-08-06";
+    var SDK_VERSION = "12.12.0";
+    var SERVICE_VERSION = "2021-10-04";
     var BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES = 256 * 1024 * 1024;
     var BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES = 4e3 * 1024 * 1024;
     var BLOCK_BLOB_MAX_BLOCKS = 5e4;
     var DEFAULT_BLOCK_BUFFER_SIZE_BYTES = 8 * 1024 * 1024;
     var DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES = 4 * 1024 * 1024;
     var DEFAULT_MAX_DOWNLOAD_RETRY_REQUESTS = 5;
+    var REQUEST_TIMEOUT = 100 * 1e3;
     var StorageOAuthScopes = "https://storage.azure.com/.default";
     var URLConstants = {
       Parameters: {
@@ -56690,6 +56691,28 @@ var require_dist10 = __commonJS({
     ];
     var BlobUsesCustomerSpecifiedEncryptionMsg = "BlobUsesCustomerSpecifiedEncryption";
     var BlobDoesNotUseCustomerSpecifiedEncryption = "BlobDoesNotUseCustomerSpecifiedEncryption";
+    var PathStylePorts = [
+      "10000",
+      "10001",
+      "10002",
+      "10003",
+      "10004",
+      "10100",
+      "10101",
+      "10102",
+      "10103",
+      "10104",
+      "11000",
+      "11001",
+      "11002",
+      "11003",
+      "11004",
+      "11100",
+      "11101",
+      "11102",
+      "11103",
+      "11104"
+    ];
     function escapeURLPath(url2) {
       const urlParsed = coreHttp.URLBuilder.parse(url2);
       let path = urlParsed.getPath();
@@ -56924,7 +56947,7 @@ var require_dist10 = __commonJS({
         return false;
       }
       const host = parsedUrl.getHost() + (parsedUrl.getPort() === void 0 ? "" : ":" + parsedUrl.getPort());
-      return /^.*:.*:.*$|^localhost(:[0-9]+)?$|^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])){3}(:[0-9]+)?$/.test(host);
+      return /^.*:.*:.*$|^localhost(:[0-9]+)?$|^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])){3}(:[0-9]+)?$/.test(host) || parsedUrl.getPort() !== void 0 && PathStylePorts.includes(parsedUrl.getPort());
     }
     function toBlobTagsString(tags2) {
       if (tags2 === void 0) {
@@ -57403,6 +57426,13 @@ var require_dist10 = __commonJS({
           isClear: true
         };
       }
+    }
+    function EscapePath(blobName) {
+      const split = blobName.split("/");
+      for (let i = 0; i < split.length; i++) {
+        split[i] = encodeURIComponent(split[i]);
+      }
+      return split.join("/");
     }
     var StorageBrowserPolicy = class extends coreHttp.BaseRequestPolicy {
       constructor(nextPolicy, options) {
@@ -57902,7 +57932,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
       }
     };
     var packageName = "azure-storage-blob";
-    var packageVersion = "12.11.0";
+    var packageVersion = "12.12.0";
     var StorageClientContext = class extends coreHttp__namespace.ServiceClient {
       constructor(url2, options) {
         if (url2 === void 0) {
@@ -57919,7 +57949,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
         this.requestContentType = "application/json; charset=utf-8";
         this.baseUri = options.endpoint || "{url}";
         this.url = url2;
-        this.version = options.version || "2021-08-06";
+        this.version = options.version || "2021-10-04";
       }
     };
     var StorageClient = class {
@@ -60268,8 +60298,10 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
       let pos = 0;
       const count = end - offset;
       return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error(`The operation cannot be completed in timeout.`)), REQUEST_TIMEOUT);
         stream2.on("readable", () => {
           if (pos >= count) {
+            clearTimeout(timeout);
             resolve();
             return;
           }
@@ -60285,12 +60317,16 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
           pos += chunkLength;
         });
         stream2.on("end", () => {
+          clearTimeout(timeout);
           if (pos < count) {
             reject(new Error(`Stream drains before getting enough data needed. Data read: ${pos}, data need: ${count}`));
           }
           resolve();
         });
-        stream2.on("error", reject);
+        stream2.on("error", (msg) => {
+          clearTimeout(timeout);
+          reject(msg);
+        });
       });
     }
     async function streamToBuffer2(stream2, buffer, encoding) {
@@ -62349,16 +62385,16 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
         }
       }
       getBlobClient(blobName) {
-        return new BlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
+        return new BlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
       }
       getAppendBlobClient(blobName) {
-        return new AppendBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
+        return new AppendBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
       }
       getBlockBlobClient(blobName) {
-        return new BlockBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
+        return new BlockBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
       }
       getPageBlobClient(blobName) {
-        return new PageBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
+        return new PageBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
       }
       async getProperties(options = {}) {
         if (!options.conditions) {
@@ -64641,7 +64677,7 @@ var import_fs = __toESM(require("fs"));
 function run() {
   return __async(this, null, function* () {
     try {
-      const cache2 = core.getInput("cache");
+      const cache2 = core.getBooleanInput("cache");
       if (cache2) {
         yield saveCache2();
       }
@@ -64656,11 +64692,7 @@ function saveCache2() {
     const cachePaths = JSON.parse(core.getState("cache-paths"));
     core.debug(`paths for caching are ${cachePaths.join(", ")}`);
     if (cachePaths.every((path) => !import_fs.default.existsSync(path))) {
-      throw new Error(
-        `Cache folder path is retrieved for pdm but doesn't exist on disk: ${cachePaths.join(
-          ", "
-        )}`
-      );
+      throw new Error(`Cache folder path is retrieved for pdm but doesn't exist on disk: ${cachePaths.join(", ")}`);
     }
     const primaryKey = core.getState("cache-primary-key");
     const matchedKey = core.getState("cache-matched-key");
@@ -64668,9 +64700,7 @@ function saveCache2() {
       core.warning("Error retrieving key from state.");
       return;
     } else if (matchedKey === primaryKey) {
-      core.info(
-        `Cache hit occurred on the primary key ${primaryKey}, not saving cache.`
-      );
+      core.info(`Cache hit occurred on the primary key ${primaryKey}, not saving cache.`);
       return;
     }
     const cacheId = yield cache.saveCache(cachePaths, primaryKey);
