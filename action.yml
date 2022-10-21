@@ -25,6 +25,14 @@ inputs:
     description: "Enable PEP 582 package loading globally."
     default: "true"
     required: false
+  cache:
+    description: "Cache PDM installation."
+    default: "false"
+    required: false
+  cache-dependency-path:
+    description: "The dependency file(s) to cache."
+    default: "pdm.lock"
+    required: false
 outputs:
   python-version:
     description: "The installed Python or PyPy version. Useful when given a version range as input."
@@ -34,9 +42,13 @@ outputs:
     description: "The installed PDM version."
   pdm-bin:
     description: "The absolute path to the PDM executable."
+  cache-hit:
+    description: "Whether or not there was a cache hit."
 runs:
   using: "node16"
   main: "dist/setup-pdm.js"
+  post: "dist/cache-save.js"
+  post-if: success()
 branding:
   icon: "code"
   color: "green"

@@ -1,8 +1,10 @@
 import * as core from '@actions/core';
+import * as cache from '@actions/cache';
 import got from 'got';
 import { promises as fs } from 'fs';
 import { useCpythonVersion } from 'setup-python/src/find-python';
 import { findPyPyVersion } from 'setup-python/src/find-pypy';
+import { getExecOutput } from '@actions/exec';
 
 
 function isPyPyVersion(versionSpec: string): boolean {
@@ -49,3 +51,23 @@ export async function readFile(filePath: string): Promise<string> {
   return await fs.readFile(filePath, 'utf8');
 }
 
+export async function getOutput(command: string, args: string[]): Promise<string> {
+  const { stdout, exitCode, stderr } = await getExecOutput(command, args);
+  if (exitCode && stderr) {
+    throw new Error(`Could not run ${command} ${args.join(' ')}: ${stderr}`);
+  }
+  return stdout.trim();
+}
+
+
+export function isCacheAvailable(): boolean {
+  if (!core.getBooleanInput('cache')) {
+    return false;
+  }
+  if (!cache.isFeatureAvailable()) {
+    core.warning('Caching is not supported on this platform.');
+    return false;
+  }
+
+  return true;
+}

@@ -1,10 +1,11 @@
 import * as os from 'os'
 import path from 'path'
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
+import { exec } from '@actions/exec'
 import { IS_WINDOWS } from 'setup-python/src/utils'
 import semParse from 'semver/functions/parse'
 import * as utils from './utils'
+import { cacheDependencies } from './caches'
 
 const INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py'
 interface InstallOutput {
@@ -28,7 +29,7 @@ async function run(): Promise<void> {
   const pdmVersion = core.getInput('version')
   const pythonVersion = core.getInput('python-version')
   const cmdArgs = ['-']
-  if (core.getInput('prerelease') === 'true') {
+  if (core.getBooleanInput('prerelease')) {
     cmdArgs.push('--prerelease')
   }
   if (pdmVersion) {
@@ -37,13 +38,13 @@ async function run(): Promise<void> {
   cmdArgs.push('-o', 'install-output.json')
   // Use the default python version installed with the runner
   try {
-    await exec.exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
+    await exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
     const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'))
     core.debug(`Install output: ${installOutput}`)
     core.setOutput('pdm-version', installOutput.pdm_version)
     core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
     core.addPath(path.dirname(installOutput.pdm_bin))
-    if (core.getInput('enable-pep582') === 'true') {
+    if (core.getBooleanInput('enable-pep582')) {
       core.exportVariable('PYTHONPATH', getPep582Path(installOutput.install_location, installOutput.install_python_version))
     }
 
@@ -56,6 +57,9 @@ async function run(): Promise<void> {
     core.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`)
     const matchersPath = path.join(__dirname, '..', '.github')
     core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`)
+    if (utils.isCacheAvailable()) {
+      await cacheDependencies(installOutput.pdm_bin, installedPython);
+    }
   } catch (error: any) {
     core.setFailed(error.message)
   }

@@ -4,15 +4,17 @@
   "description": "The GitHub Action for using pdm as the package manager",
   "main": "dist/setup-pdm.js",
   "scripts": {
-    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --outfile=dist/setup-pdm.js"
+    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --outfile=dist/setup-pdm.js && esbuild src/cache-save.ts --bundle --platform=node --outfile=dist/cache-save.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pdm-project/setup-pdm.git"
   },
   "dependencies": {
+    "@actions/cache": "^3.0.6",
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
+    "@actions/glob": "^0.3.0",
     "got": "^12.5.2",
     "semver": "^7.3.8",
     "setup-python": "actions/setup-python"

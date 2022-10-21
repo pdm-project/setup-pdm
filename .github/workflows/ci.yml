@@ -15,6 +15,7 @@ jobs:
       - name: Setup PDM
         uses: ./
         id: setup-pdm
+        cache: true
         with:
           python-version: ${{ matrix.python-version }}
 
