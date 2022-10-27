@@ -38,7 +38,7 @@ async function run(): Promise<void> {
   cmdArgs.push('-o', 'install-output.json');
   // Use the default python version installed with the runner
   try {
-    await exec('python', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
+    await exec(IS_WINDOWS ? 'python' : 'python3', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
     const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'));
     core.debug(`Install output: ${installOutput}`);
     core.setOutput('pdm-version', installOutput.pdm_version);

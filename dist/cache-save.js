@@ -43712,9 +43712,9 @@ var require_dist9 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+storage-blob@12.12.0/node_modules/@azure/storage-blob/dist/index.js
+// node_modules/.pnpm/@azure+storage-blob@12.11.0/node_modules/@azure/storage-blob/dist/index.js
 var require_dist10 = __commonJS({
-  "node_modules/.pnpm/@azure+storage-blob@12.12.0/node_modules/@azure/storage-blob/dist/index.js"(exports) {
+  "node_modules/.pnpm/@azure+storage-blob@12.11.0/node_modules/@azure/storage-blob/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var coreHttp = require_dist7();
@@ -52196,7 +52196,7 @@ var require_dist10 = __commonJS({
     var version = {
       parameterPath: "version",
       mapper: {
-        defaultValue: "2021-10-04",
+        defaultValue: "2021-08-06",
         isConstant: true,
         serializedName: "x-ms-version",
         type: {
@@ -56498,15 +56498,14 @@ var require_dist10 = __commonJS({
       serializer: xmlSerializer
     };
     var logger = logger$1.createClientLogger("storage-blob");
-    var SDK_VERSION = "12.12.0";
-    var SERVICE_VERSION = "2021-10-04";
+    var SDK_VERSION = "12.11.0";
+    var SERVICE_VERSION = "2021-08-06";
     var BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES = 256 * 1024 * 1024;
     var BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES = 4e3 * 1024 * 1024;
     var BLOCK_BLOB_MAX_BLOCKS = 5e4;
     var DEFAULT_BLOCK_BUFFER_SIZE_BYTES = 8 * 1024 * 1024;
     var DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES = 4 * 1024 * 1024;
     var DEFAULT_MAX_DOWNLOAD_RETRY_REQUESTS = 5;
-    var REQUEST_TIMEOUT = 100 * 1e3;
     var StorageOAuthScopes = "https://storage.azure.com/.default";
     var URLConstants = {
       Parameters: {
@@ -56691,28 +56690,6 @@ var require_dist10 = __commonJS({
     ];
     var BlobUsesCustomerSpecifiedEncryptionMsg = "BlobUsesCustomerSpecifiedEncryption";
     var BlobDoesNotUseCustomerSpecifiedEncryption = "BlobDoesNotUseCustomerSpecifiedEncryption";
-    var PathStylePorts = [
-      "10000",
-      "10001",
-      "10002",
-      "10003",
-      "10004",
-      "10100",
-      "10101",
-      "10102",
-      "10103",
-      "10104",
-      "11000",
-      "11001",
-      "11002",
-      "11003",
-      "11004",
-      "11100",
-      "11101",
-      "11102",
-      "11103",
-      "11104"
-    ];
     function escapeURLPath(url2) {
       const urlParsed = coreHttp.URLBuilder.parse(url2);
       let path = urlParsed.getPath();
@@ -56947,7 +56924,7 @@ var require_dist10 = __commonJS({
         return false;
       }
       const host = parsedUrl.getHost() + (parsedUrl.getPort() === void 0 ? "" : ":" + parsedUrl.getPort());
-      return /^.*:.*:.*$|^localhost(:[0-9]+)?$|^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])){3}(:[0-9]+)?$/.test(host) || parsedUrl.getPort() !== void 0 && PathStylePorts.includes(parsedUrl.getPort());
+      return /^.*:.*:.*$|^localhost(:[0-9]+)?$|^(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])(\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])){3}(:[0-9]+)?$/.test(host);
     }
     function toBlobTagsString(tags2) {
       if (tags2 === void 0) {
@@ -57426,13 +57403,6 @@ var require_dist10 = __commonJS({
           isClear: true
         };
       }
-    }
-    function EscapePath(blobName) {
-      const split = blobName.split("/");
-      for (let i = 0; i < split.length; i++) {
-        split[i] = encodeURIComponent(split[i]);
-      }
-      return split.join("/");
     }
     var StorageBrowserPolicy = class extends coreHttp.BaseRequestPolicy {
       constructor(nextPolicy, options) {
@@ -57932,7 +57902,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
       }
     };
     var packageName = "azure-storage-blob";
-    var packageVersion = "12.12.0";
+    var packageVersion = "12.11.0";
     var StorageClientContext = class extends coreHttp__namespace.ServiceClient {
       constructor(url2, options) {
         if (url2 === void 0) {
@@ -57949,7 +57919,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
         this.requestContentType = "application/json; charset=utf-8";
         this.baseUri = options.endpoint || "{url}";
         this.url = url2;
-        this.version = options.version || "2021-10-04";
+        this.version = options.version || "2021-08-06";
       }
     };
     var StorageClient = class {
@@ -60298,10 +60268,8 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
       let pos = 0;
       const count = end - offset;
       return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error(`The operation cannot be completed in timeout.`)), REQUEST_TIMEOUT);
         stream2.on("readable", () => {
           if (pos >= count) {
-            clearTimeout(timeout);
             resolve();
             return;
           }
@@ -60317,16 +60285,12 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
           pos += chunkLength;
         });
         stream2.on("end", () => {
-          clearTimeout(timeout);
           if (pos < count) {
             reject(new Error(`Stream drains before getting enough data needed. Data read: ${pos}, data need: ${count}`));
           }
           resolve();
         });
-        stream2.on("error", (msg) => {
-          clearTimeout(timeout);
-          reject(msg);
-        });
+        stream2.on("error", reject);
       });
     }
     async function streamToBuffer2(stream2, buffer, encoding) {
@@ -62385,16 +62349,16 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
         }
       }
       getBlobClient(blobName) {
-        return new BlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
+        return new BlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
       }
       getAppendBlobClient(blobName) {
-        return new AppendBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
+        return new AppendBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
       }
       getBlockBlobClient(blobName) {
-        return new BlockBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
+        return new BlockBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
       }
       getPageBlobClient(blobName) {
-        return new PageBlobClient(appendToURLPath(this.url, EscapePath(blobName)), this.pipeline);
+        return new PageBlobClient(appendToURLPath(this.url, encodeURIComponent(blobName)), this.pipeline);
       }
       async getProperties(options = {}) {
         if (!options.conditions) {
