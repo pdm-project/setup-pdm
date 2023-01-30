@@ -77498,7 +77498,7 @@ function run() {
     if (pdmVersion) {
       cmdArgs.push("--version", pdmVersion);
     }
-    if (core.getBooleanInput('enable-install-output')) {
+    if (core.getBooleanInput('generate-install-output')) {
       cmdArgs.push('-o', 'install-output.json');
     }
     try {
