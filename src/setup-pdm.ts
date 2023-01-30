@@ -2,6 +2,7 @@ import * as os from 'os';
 import path from 'path';
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
+import { promises as fs } from 'fs';
 import { IS_WINDOWS } from 'setup-python/src/utils';
 import semParse from 'semver/functions/parse';
 import * as utils from './utils';
@@ -60,6 +61,7 @@ async function run(): Promise<void> {
     if (utils.isCacheAvailable()) {
       await cacheDependencies(installOutput.pdm_bin, installedPython);
     }
+    await fs.rm('install-output.json')
   } catch (error: any) {
     core.setFailed(error.message);
   }
