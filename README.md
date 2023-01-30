@@ -17,11 +17,12 @@ steps:
     - uses: pdm-project/setup-pdm@v3
       name: Setup PDM
       with:
-        python-version: 3.9  # Version range or exact version of a Python version to use, the same as actions/setup-python
-        architecture: x64    # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
-        version: 1.4.0       # The version of PDM to install. Leave it as empty to use the latest version from PyPI, or 'head' to use the latest version from GitHub
-        prerelease: true     # Allow prerelease versions to be installed
-        enable-pep582: true  # Enable PEP 582 package loading globally
+        python-version: 3.9           # Version range or exact version of a Python version to use, the same as actions/setup-python
+        architecture: x64             # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
+        version: 1.4.0                # The version of PDM to install. Leave it as empty to use the latest version from PyPI, or 'head' to use the latest version from GitHub
+        prerelease: true              # Allow prerelease versions to be installed
+        enable-pep582: true           # Enable PEP 582 package loading globally
+        generate-install-output: true # Generate output file with the installation info
     - name: Install dependencies
       run: pdm install       # Then you can use pdm in the following steps.
     ...

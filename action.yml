@@ -25,6 +25,10 @@ inputs:
     description: "Enable PEP 582 package loading globally."
     default: "true"
     required: false
+  generate-install-output:
+    description: "Generate output file with the installation info"
+    default: "true"
+    required: false
   cache:
     description: "Cache PDM installation."
     default: "false"

@@ -77498,7 +77498,9 @@ function run() {
     if (pdmVersion) {
       cmdArgs.push("--version", pdmVersion);
     }
-    cmdArgs.push("-o", "install-output.json");
+    if (core.getBooleanInput('enable-install-output')) {
+      cmdArgs.push('-o', 'install-output.json');
+    }
     try {
       yield (0, import_exec2.exec)(IS_WINDOWS ? "python" : "python3", cmdArgs, { input: yield fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
       const installOutput = JSON.parse(yield readFile("install-output.json"));

@@ -1,11 +1,11 @@
-import * as os from 'os';
-import path from 'path';
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import { IS_WINDOWS } from 'setup-python/src/utils';
+import * as os from 'os';
+import path from 'path';
 import semParse from 'semver/functions/parse';
-import * as utils from './utils';
+import { IS_WINDOWS } from 'setup-python/src/utils';
 import { cacheDependencies } from './caches';
+import * as utils from './utils';
 
 const INSTALL_SCRIPT_URL = 'https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py';
 interface InstallOutput {
@@ -35,7 +35,9 @@ async function run(): Promise<void> {
   if (pdmVersion) {
     cmdArgs.push('--version', pdmVersion);
   }
-  cmdArgs.push('-o', 'install-output.json');
+  if (core.getBooleanInput('enable-install-output')) {
+    cmdArgs.push('-o', 'install-output.json');
+  }
   // Use the default python version installed with the runner
   try {
     await exec(IS_WINDOWS ? 'python' : 'python3', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
