@@ -73,7 +73,6 @@ The default path to calculate the cache key is `./pdm.lock`, you can change it b
 **Using a glob pattern to cache dependencies**
 
 ```yaml
-```yaml
 - uses: pdm-project/setup-pdm@v3
   with:
     python-version: 3.9
