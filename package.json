@@ -4,7 +4,7 @@
   "description": "The GitHub Action for using pdm as the package manager",
   "main": "dist/setup-pdm.js",
   "scripts": {
-    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --outfile=dist/setup-pdm.js && esbuild src/cache-save.ts --bundle --platform=node --outfile=dist/cache-save.js"
+    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --target=node16 --outfile=dist/setup-pdm.js && esbuild src/cache-save.ts --bundle --platform=node --target=node16 --outfile=dist/cache-save.js"
   },
   "repository": {
     "type": "git",
