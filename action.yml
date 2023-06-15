@@ -23,7 +23,7 @@ inputs:
     required: false
   enable-pep582:
     description: "Enable PEP 582 package loading globally."
-    default: "true"
+    default: "false"
     required: false
   cache:
     description: "Cache PDM installation."
