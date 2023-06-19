@@ -77501,7 +77501,7 @@ function handleMatchResult(matchedKey, primaryKey) {
 }
 
 // src/setup-pdm.ts
-var INSTALL_SCRIPT_URL = "https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py";
+var INSTALL_SCRIPT_URL = "https://pdm.fming.dev/dev/install-pdm.py";
 function getPep582Path(installDir, pythonVersion) {
   const parsedVersion = (0, import_parse.default)(pythonVersion);
   if (IS_WINDOWS) {
