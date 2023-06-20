@@ -20,7 +20,7 @@ steps:
         python-version: 3.9  # Version range or exact version of a Python version to use, the same as actions/setup-python
         architecture: x64    # The target architecture (x86, x64) of the Python interpreter. the same as actions/setup-python
         version: 1.4.0       # The version of PDM to install. Leave it as empty to use the latest version from PyPI, or 'head' to use the latest version from GitHub
-        prerelease: true     # Allow prerelease versions to be installed
+        prerelease: true     # Allow prerelease versions to be installed (default: false)
         enable-pep582: true  # Enable PEP 582 package loading globally
     - name: Install dependencies
       run: pdm install       # Then you can use pdm in the following steps.
