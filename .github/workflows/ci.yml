@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: true
-          prerelease: true
+          allow-python-prereleases: true
 
       - name: Check output
         run: |
