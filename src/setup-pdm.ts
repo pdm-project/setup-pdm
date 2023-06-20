@@ -29,8 +29,9 @@ async function run(): Promise<void> {
   const arch = core.getInput('architecture') || os.arch();
   const pdmVersion = core.getInput('version');
   const pythonVersion = core.getInput('python-version');
+  const prerelease = core.getBooleanInput('prerelease');
   const cmdArgs = ['-'];
-  if (core.getBooleanInput('prerelease')) {
+  if (prerelease) {
     cmdArgs.push('--prerelease');
   }
   if (pdmVersion) {
@@ -49,7 +50,7 @@ async function run(): Promise<void> {
       core.exportVariable('PYTHONPATH', getPep582Path(installOutput.install_location, installOutput.install_python_version));
     }
 
-    const installedPython = await utils.findPythonVersion(pythonVersion, arch);
+    const installedPython = await utils.findPythonVersion(pythonVersion, arch, prerelease);
 
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
