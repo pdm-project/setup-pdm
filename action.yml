@@ -10,6 +10,10 @@ inputs:
   architecture:
     description: "The target architecture (x86, x64) of the Python interpreter."
     required: false
+  allow-python-prereleases:
+    description: "Allow prerelease versions of Python to be installed."
+    default: "false"
+    required: false
   token:
     description: Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
     default: ${{ github.token }}
