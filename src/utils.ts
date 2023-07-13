@@ -34,7 +34,7 @@ export async function findPythonVersion(version: string, architecture: string, a
     core.info(
       `Successfully set up PyPy ${installed.resolvedPyPyVersion} with Python (${installed.resolvedPythonVersion})`
     );
-    return installed.resolvedPythonVersion;
+    return `pypy-${installed.resolvedPythonVersion}`;
   } else {
     const installed = await useCpythonVersion(
       version,
