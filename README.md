@@ -23,6 +23,7 @@ steps:
         prerelease: false                # Allow prerelease versions of PDM to be installed
         enable-pep582: false             # Enable PEP 582 package loading globally
         allow-python-prereleases: false  # Allow prerelease versions of Python to be installed. For example if only 3.12-dev is available, 3.12 will fallback to 3.12-dev
+        update-python: true              # Update the environment with the requested python version
     - name: Install dependencies
       run: pdm install                   # Then you can use pdm in the following steps.
     ...
