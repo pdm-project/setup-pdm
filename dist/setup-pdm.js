@@ -77514,13 +77514,13 @@ async function fetchUrlAsBuffer(url) {
   }
   return Buffer.from(response.body);
 }
-async function findPythonVersion(version, architecture, allowPreReleases) {
+async function findPythonVersion(version, architecture, allowPreReleases, updateEnvironment = true) {
   let pythonVersion = "";
   if (isPyPyVersion(version)) {
     const installed = await findPyPyVersion(
       version,
       architecture,
-      true,
+      updateEnvironment,
       false,
       allowPreReleases
     );
@@ -77533,7 +77533,7 @@ async function findPythonVersion(version, architecture, allowPreReleases) {
     const installed = await useCpythonVersion(
       version,
       architecture,
-      true,
+      updateEnvironment,
       false,
       allowPreReleases
     );
@@ -77621,6 +77621,7 @@ async function run() {
   const arch2 = core8.getInput("architecture") || os4.arch();
   const pdmVersion = core8.getInput("version");
   const pythonVersion = core8.getInput("python-version");
+  const updateEnvironment = core8.getBooleanInput("update-python");
   const allowPythonPreReleases = core8.getBooleanInput("allow-python-prereleases");
   const cmdArgs = ["-"];
   if (core8.getBooleanInput("prerelease")) {
@@ -77640,7 +77641,7 @@ async function run() {
     if (core8.getBooleanInput("enable-pep582")) {
       core8.exportVariable("PYTHONPATH", getPep582Path(installOutput.install_location, installOutput.install_python_version));
     }
-    const installedPython = await findPythonVersion(pythonVersion, arch2, allowPythonPreReleases);
+    const installedPython = await findPythonVersion(pythonVersion, arch2, allowPythonPreReleases, updateEnvironment);
     if (process.platform === "linux") {
       core8.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
     }

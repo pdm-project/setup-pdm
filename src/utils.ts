@@ -20,13 +20,13 @@ export async function fetchUrlAsBuffer(url: string): Promise<Buffer> {
 }
 
 
-export async function findPythonVersion(version: string, architecture: string, allowPreReleases: boolean): Promise<string> {
+export async function findPythonVersion(version: string, architecture: string, allowPreReleases: boolean, updateEnvironment: boolean = true): Promise<string> {
   let pythonVersion = '';
   if (isPyPyVersion(version)) {
     const installed = await findPyPyVersion(
       version,
       architecture,
-      true,
+      updateEnvironment,
       false,
       allowPreReleases
     );
@@ -39,7 +39,7 @@ export async function findPythonVersion(version: string, architecture: string, a
     const installed = await useCpythonVersion(
       version,
       architecture,
-      true,
+      updateEnvironment,
       false,
       allowPreReleases
     );

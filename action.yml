@@ -6,7 +6,7 @@ inputs:
   python-version:
     description: "Version range or exact version of a Python version to use, using SemVer's version range syntax."
     default: "3.x"
-    required: true
+    required: false
   architecture:
     description: "The target architecture (x86, x64) of the Python interpreter."
     required: false
@@ -37,6 +37,9 @@ inputs:
     description: "The dependency file(s) to cache."
     default: "pdm.lock"
     required: false
+  update-python:
+    description: "Whether to update the environment with the requested Python"
+    default: "true"
 outputs:
   python-version:
     description: "The installed Python or PyPy version. Useful when given a version range as input."
