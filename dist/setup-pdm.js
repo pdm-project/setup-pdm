@@ -77528,7 +77528,7 @@ async function findPythonVersion(version, architecture, allowPreReleases, update
     core6.info(
       `Successfully set up PyPy ${installed.resolvedPyPyVersion} with Python (${installed.resolvedPythonVersion})`
     );
-    return installed.resolvedPythonVersion;
+    return `pypy-${installed.resolvedPythonVersion}`;
   } else {
     const installed = await useCpythonVersion(
       version,
