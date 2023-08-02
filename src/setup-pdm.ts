@@ -8,7 +8,7 @@ import semParse from 'semver/functions/parse';
 import * as utils from './utils';
 import { cacheDependencies } from './caches';
 
-const INSTALL_SCRIPT_URL = 'https://pdm.fming.dev/dev/install-pdm.py';
+const INSTALL_SCRIPT_URL = 'https://pdm.fming.dev/install-pdm.py';
 interface InstallOutput {
   pdm_version: string;
   pdm_bin: string;
