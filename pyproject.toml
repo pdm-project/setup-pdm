@@ -3,7 +3,7 @@ authors = [
     {name = "Frost Ming", email = "mianghong@gmail.com"},
 ]
 include = "test.py"
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 dynamic = ["classifiers"]
 license = {text = "MIT"}
 
@@ -15,7 +15,6 @@ homepage = ""
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "idna; python_version=='3.6'",
     "chardet; python_version=='3.7'",
     "urllib3; python_version=='3.8'",
     "certifi; python_version=='3.9'",
