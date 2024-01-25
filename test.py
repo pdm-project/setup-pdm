@@ -1,11 +1,9 @@
+import importlib
 import os
 import sys
 import unittest
-import importlib
-
 
 PACKAGE_MAP = {
-    "3.6": "idna",
     "3.7": "chardet",
     "3.8": "urllib3",
     "3.9": "certifi",
