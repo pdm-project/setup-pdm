@@ -52,7 +52,7 @@ outputs:
   cache-hit:
     description: "Whether or not there was a cache hit."
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/setup-pdm.js"
   post: "dist/cache-save.js"
   post-if: success()

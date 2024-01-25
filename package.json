@@ -4,7 +4,7 @@
   "description": "The GitHub Action for using pdm as the package manager",
   "main": "dist/setup-pdm.js",
   "scripts": {
-    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --target=node16 --outfile=dist/setup-pdm.js && esbuild src/cache-save.ts --bundle --platform=node --target=node16 --outfile=dist/cache-save.js"
+    "build": "esbuild src/setup-pdm.ts --bundle --platform=node --target=node20 --outfile=dist/setup-pdm.js && esbuild src/cache-save.ts --bundle --platform=node --target=node20 --outfile=dist/cache-save.js"
   },
   "packageManager": "pnpm@7.32.2",
   "repository": {
@@ -12,18 +12,18 @@
     "url": "git+https://github.com/pdm-project/setup-pdm.git"
   },
   "dependencies": {
-    "@actions/cache": "^3.0.6",
-    "@actions/core": "^1.10.0",
+    "@actions/cache": "^3.2.3",
+    "@actions/core": "^1.10.1",
     "@actions/exec": "^1.1.1",
-    "@actions/glob": "^0.3.0",
-    "got": "^12.5.2",
-    "semver": "^7.3.8",
+    "@actions/glob": "^0.4.0",
+    "got": "^14.0.0",
+    "semver": "^7.5.4",
     "setup-python": "actions/setup-python"
   },
   "devDependencies": {
     "@types/node": "^18.11.0",
-    "@types/semver": "^7.3.12",
-    "esbuild": "^0.15.11",
+    "@types/semver": "^7.5.4",
+    "esbuild": "^0.19.12",
     "typescript": "^4.8.4"
   }
 }
