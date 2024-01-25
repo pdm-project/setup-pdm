@@ -29,8 +29,8 @@ This action supports the following inputs:
 
 | Input                      | Default               | Description                                                                                                                          |
 | -------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `python-version`           | `3.x`                 | Version range or exact version of a Python version to use, using SemVer's version range syntax.                                      |
-| `python-version-file`      | `.python-version`     | File containing the Python version to use. Example: .`python-version`                                                                |
+| `python-version`           | Not specified         | Version range or exact version of a Python version to use, using SemVer's version range syntax.                                      |
+| `python-version-file`      | `pyproject.toml`      | File containing the Python version to use. Example: .`python-version`                                                                |
 | `architecture`             | `x64`                 | The target architecture (x86, x64) of the Python interpreter.                                                                        |
 | `allow-python-prereleases` | `false`               | Allow prerelease versions of Python to be installed.                                                                                 |
 | `token`                    | `${{ github.token }}` | Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user. |
