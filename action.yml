@@ -5,8 +5,6 @@ author: Frost Ming
 inputs:
   python-version:
     description: 'Version range or exact version of a Python version to use, using SemVer''s version range syntax.'
-    default: 3.x
-    required: false
   python-version-file:
     description: 'File containing the Python version to use. Example: .python-version'
   architecture:

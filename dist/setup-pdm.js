@@ -91003,7 +91003,7 @@ function isCacheAvailable() {
 }
 function resolveVersionInputFromDefaultFile() {
   const couples = [
-    [".python-version", getVersionInputFromPlainFile]
+    ["pyproject.toml", getVersionInputFromTomlFile]
   ];
   for (const [versionFile, _fn] of couples) {
     logWarning(

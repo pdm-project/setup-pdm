@@ -7,7 +7,7 @@ import { useCpythonVersion } from 'setup-python/src/find-python'
 import { findPyPyVersion } from 'setup-python/src/find-pypy'
 import {
   getVersionInputFromFile,
-  getVersionInputFromPlainFile,
+  getVersionInputFromTomlFile,
   logWarning,
 } from 'setup-python/src/utils'
 import { getExecOutput } from '@actions/exec'
@@ -80,7 +80,7 @@ export function isCacheAvailable(): boolean {
 
 function resolveVersionInputFromDefaultFile(): string[] {
   const couples: [string, (versionFile: string) => string[]][] = [
-    ['.python-version', getVersionInputFromPlainFile],
+    ['pyproject.toml', getVersionInputFromTomlFile],
   ]
   for (const [versionFile, _fn] of couples) {
     logWarning(

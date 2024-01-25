@@ -1,6 +1,6 @@
 {
   "name": "setup-pdm",
-  "version": "2.0.0",
+  "version": "4.0.0",
   "packageManager": "pnpm@8.14.3",
   "description": "The GitHub Action for using pdm as the package manager",
   "repository": {
