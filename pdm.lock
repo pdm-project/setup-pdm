@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:e29e752da907a16426b7944596e99b58689675c674386de35c3d66f220b36ad2"
+content_hash = "sha256:eb061d39de14e94263f38ecb20461dfb8a9fc7d73a3f9ede85ded6085701598a"
 
 [[package]]
 name = "certifi"
@@ -17,18 +17,6 @@ marker = "python_version == \"3.9\""
 files = [
     {file = "certifi-2023.11.17-py3-none-any.whl", hash = "sha256:e036ab49d5b79556f99cfc2d9320b34cfbe5be05c5871b51de9329f0603b0474"},
     {file = "certifi-2023.11.17.tar.gz", hash = "sha256:9b469f3a900bf28dc19b8cfbf8019bf47f7fdd1a65a1d4ffb98fc14166beb4d1"},
-]
-
-[[package]]
-name = "chardet"
-version = "5.2.0"
-requires_python = ">=3.7"
-summary = "Universal encoding detector for Python 3"
-groups = ["dev"]
-marker = "python_version == \"3.7\""
-files = [
-    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
-    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
 ]
 
 [[package]]

@@ -4,7 +4,6 @@ import sys
 import unittest
 
 PACKAGE_MAP = {
-    "3.7": "chardet",
     "3.8": "urllib3",
     "3.9": "certifi",
     "3.10": "pytz",
