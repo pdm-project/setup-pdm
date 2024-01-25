@@ -1,20 +1,18 @@
 [project]
 name = "setup-pdm"
 version = "0.0.0"
-authors = [
-    {name = "Frost Ming", email = "mianghong@gmail.com"},
-]
+authors = [ { name = "Frost Ming", email = "mianghong@gmail.com" }, ]
 requires-python = ">=3.8"
-license = {text = "MIT"}
+license = { text = "MIT" }
 
 [tool.pdm]
 distribution = false
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "urllib3; python_version=='3.8'",
-    "certifi; python_version=='3.9'",
-    "pytz; python_version=='3.10'",
-    "setuptools; python_version=='3.11'",
-    "six; python_version=='3.12'",
+  "urllib3; python_version=='3.8'",
+  "certifi; python_version=='3.9'",
+  "pytz; python_version=='3.10'",
+  "setuptools; python_version=='3.11'",
+  "six; python_version=='3.12'",
 ]

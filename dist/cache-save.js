@@ -74831,15 +74831,14 @@ var require_cache2 = __commonJS({
 });
 
 // src/cache-save.ts
-var core = __toESM(require_core());
-var cache = __toESM(require_cache2());
-var import_fs = __toESM(require("fs"));
+var import_node_fs = __toESM(require("node:fs"), 1);
+var core = __toESM(require_core(), 1);
+var cache = __toESM(require_cache2(), 1);
 async function run() {
   try {
     const cache2 = core.getBooleanInput("cache");
-    if (cache2) {
+    if (cache2)
       await saveCache2();
-    }
   } catch (error) {
     const err = error;
     core.setFailed(err.message);
@@ -74848,9 +74847,8 @@ async function run() {
 async function saveCache2() {
   const cachePaths = JSON.parse(core.getState("cache-paths"));
   core.debug(`paths for caching are ${cachePaths.join(", ")}`);
-  if (cachePaths.every((path) => !import_fs.default.existsSync(path))) {
+  if (cachePaths.every((path) => !import_node_fs.default.existsSync(path)))
     throw new Error(`Cache folder path is retrieved for pdm but doesn't exist on disk: ${cachePaths.join(", ")}`);
-  }
   const primaryKey = core.getState("cache-primary-key");
   const matchedKey = core.getState("cache-matched-key");
   if (!primaryKey) {
@@ -74861,9 +74859,8 @@ async function saveCache2() {
     return;
   }
   const cacheId = await cache.saveCache(cachePaths, primaryKey);
-  if (cacheId == -1) {
+  if (cacheId === -1)
     return;
-  }
   core.info(`Cache saved with the key: ${primaryKey}`);
 }
 run();

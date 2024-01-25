@@ -2066,7 +2066,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path8.delimiter}${process.env["PATH"]}`;
     }
     exports2.addPath = addPath4;
-    function getInput4(name, options) {
+    function getInput5(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -2076,19 +2076,19 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports2.getInput = getInput4;
-    function getMultilineInput(name, options) {
-      const inputs = getInput4(name, options).split("\n").filter((x) => x !== "");
+    exports2.getInput = getInput5;
+    function getMultilineInput2(name, options) {
+      const inputs = getInput5(name, options).split("\n").filter((x) => x !== "");
       if (options && options.trimWhitespace === false) {
         return inputs;
       }
       return inputs.map((input) => input.trim());
     }
-    exports2.getMultilineInput = getMultilineInput;
+    exports2.getMultilineInput = getMultilineInput2;
     function getBooleanInput3(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput4(name, options);
+      const val = getInput5(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -10762,7 +10762,7 @@ var require_dataURL = __commonJS({
       }
       return bytes;
     }
-    function collectAnHTTPQuotedString(input, position, extractValue) {
+    function collectAnHTTPQuotedString(input, position, extractValue2) {
       const positionStart = position.position;
       let value = "";
       assert2(input[position.position] === '"');
@@ -10790,7 +10790,7 @@ var require_dataURL = __commonJS({
           break;
         }
       }
-      if (extractValue) {
+      if (extractValue2) {
         return value;
       }
       return input.slice(positionStart, position.position);
@@ -29898,10 +29898,10 @@ var require_parser = __commonJS({
         return typeof thing === "object" && thing != null && Object.keys(thing).length === 0;
       };
       processItem = function(processors2, item, key) {
-        var i, len, process4;
+        var i, len, process6;
         for (i = 0, len = processors2.length; i < len; i++) {
-          process4 = processors2[i];
-          item = process4(item, key);
+          process6 = processors2[i];
+          item = process6(item, key);
         }
         return item;
       };
@@ -84120,11 +84120,12 @@ var require_glob2 = __commonJS({
 });
 
 // src/setup-pdm.ts
-var os4 = __toESM(require("os"));
-var import_path2 = __toESM(require("path"));
-var core8 = __toESM(require_core());
-var import_exec2 = __toESM(require_exec());
-var import_fs4 = require("fs");
+var os4 = __toESM(require("node:os"), 1);
+var import_node_path2 = __toESM(require("node:path"), 1);
+var import_node_fs2 = require("node:fs");
+var import_node_process4 = __toESM(require("node:process"), 1);
+var core8 = __toESM(require_core(), 1);
+var import_exec2 = __toESM(require_exec(), 1);
 
 // node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/utils.ts
 var cache = __toESM(require_cache2());
@@ -84176,6 +84177,10 @@ function validatePythonVersionFormatForPyPy(version2) {
   const re = /^\d+\.\d+$/;
   return re.test(version2);
 }
+function logWarning(message) {
+  const warningPrefix = "[warning]";
+  core.info(`${warningPrefix}${message}`);
+}
 async function getWindowsInfo() {
   const { stdout } = await exec.getExecOutput(
     'powershell -command "(Get-CimInstance -ClassName Win32_OperatingSystem).Caption"',
@@ -84219,16 +84224,73 @@ async function getOSInfo() {
     return osInfo;
   }
 }
+function extractValue(obj, keys) {
+  if (keys.length > 0) {
+    const value = obj[keys[0]];
+    if (keys.length > 1 && value !== void 0) {
+      return extractValue(value, keys.slice(1));
+    } else {
+      return value;
+    }
+  } else {
+    return;
+  }
+}
+function getVersionInputFromTomlFile(versionFile) {
+  core.debug(`Trying to resolve version form ${versionFile}`);
+  const pyprojectFile = import_fs.default.readFileSync(versionFile, "utf8");
+  const pyprojectConfig = toml.parse(pyprojectFile);
+  let keys = [];
+  if ("project" in pyprojectConfig) {
+    keys = ["project", "requires-python"];
+  } else {
+    keys = ["tool", "poetry", "dependencies", "python"];
+  }
+  const versions = [];
+  const version2 = extractValue(pyprojectConfig, keys);
+  if (version2 !== void 0) {
+    versions.push(version2);
+  }
+  core.info(`Extracted ${versions} from ${versionFile}`);
+  const rawVersions = Array.from(
+    versions,
+    (version3) => version3.split(",").join(" ")
+  );
+  const validatedVersions = rawVersions.map((item) => semver.validRange(item, true)).filter((versionRange, index) => {
+    if (!versionRange) {
+      core.debug(
+        `The version ${rawVersions[index]} is not valid SemVer range`
+      );
+    }
+    return !!versionRange;
+  });
+  return validatedVersions;
+}
+function getVersionInputFromPlainFile(versionFile) {
+  core.debug(`Trying to resolve version form ${versionFile}`);
+  const version2 = import_fs.default.readFileSync(versionFile, "utf8").trim();
+  core.info(`Resolved ${versionFile} as ${version2}`);
+  return [version2];
+}
+function getVersionInputFromFile(versionFile) {
+  if (versionFile.endsWith(".toml")) {
+    return getVersionInputFromTomlFile(versionFile);
+  } else {
+    return getVersionInputFromPlainFile(versionFile);
+  }
+}
 function getBinaryDirectory(installDir) {
   return IS_WINDOWS ? installDir : path.join(installDir, "bin");
 }
 
 // src/setup-pdm.ts
-var import_parse3 = __toESM(require_parse2());
+var import_parse3 = __toESM(require_parse2(), 1);
 
 // src/utils.ts
-var core6 = __toESM(require_core());
-var cache2 = __toESM(require_cache2());
+var import_node_fs = __toESM(require("node:fs"), 1);
+var import_node_buffer3 = require("node:buffer");
+var core6 = __toESM(require_core(), 1);
+var cache2 = __toESM(require_cache2(), 1);
 
 // node_modules/.pnpm/@sindresorhus+is@6.1.0/node_modules/@sindresorhus/is/dist/index.js
 var typedArrayTypeNames = [
@@ -90329,9 +90391,6 @@ var defaults = {
 var got = create_default(defaults);
 var source_default2 = got;
 
-// src/utils.ts
-var import_fs3 = require("fs");
-
 // node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-python.ts
 var os2 = __toESM(require("os"));
 var path3 = __toESM(require("path"));
@@ -90886,16 +90945,15 @@ function findPyPyInstallDirForWindows(pythonVersion) {
 }
 
 // src/utils.ts
-var import_exec = __toESM(require_exec());
+var import_exec = __toESM(require_exec(), 1);
 function isPyPyVersion(versionSpec) {
   return versionSpec.startsWith("pypy");
 }
 async function fetchUrlAsBuffer(url) {
   const response = await source_default2(url);
-  if (!response.ok) {
+  if (!response.ok)
     throw new Error(`Failed to fetch ${url}`);
-  }
-  return Buffer.from(response.body);
+  return import_node_buffer3.Buffer.from(response.body);
 }
 async function findPythonVersion(version2, architecture, allowPreReleases, updateEnvironment = true) {
   let pythonVersion = "";
@@ -90926,35 +90984,72 @@ async function findPythonVersion(version2, architecture, allowPreReleases, updat
   }
 }
 async function readFile(filePath) {
-  return await import_fs3.promises.readFile(filePath, "utf8");
+  return await import_node_fs.default.promises.readFile(filePath, "utf8");
 }
 async function getOutput(command, args) {
   const { stdout, exitCode, stderr } = await (0, import_exec.getExecOutput)(command, args);
-  if (exitCode && stderr) {
+  if (exitCode && stderr)
     throw new Error(`Could not run ${command} ${args.join(" ")}: ${stderr}`);
-  }
   return stdout.trim();
 }
 function isCacheAvailable() {
-  if (!core6.getBooleanInput("cache")) {
+  if (!core6.getBooleanInput("cache"))
     return false;
-  }
   if (!cache2.isFeatureAvailable()) {
     core6.warning("Caching is not supported on this platform.");
     return false;
   }
   return true;
 }
+function resolveVersionInputFromDefaultFile() {
+  const couples = [
+    [".python-version", getVersionInputFromPlainFile]
+  ];
+  for (const [versionFile, _fn] of couples) {
+    logWarning(
+      `Neither 'python-version' nor 'python-version-file' inputs were supplied. Attempting to find '${versionFile}' file.`
+    );
+    if (import_node_fs.default.existsSync(versionFile))
+      return _fn(versionFile);
+    else
+      logWarning(`${versionFile} doesn't exist.`);
+  }
+  return [];
+}
+function resolveVersionInput() {
+  let versions = core6.getMultilineInput("python-version");
+  const versionFile = core6.getInput("python-version-file");
+  if (versions.length) {
+    if (versionFile) {
+      core6.warning(
+        "Both python-version and python-version-file inputs are specified, only python-version will be used."
+      );
+    }
+  } else {
+    if (versionFile) {
+      if (!import_node_fs.default.existsSync(versionFile)) {
+        throw new Error(
+          `The specified python version file at: ${versionFile} doesn't exist.`
+        );
+      }
+      versions = getVersionInputFromFile(versionFile);
+    } else {
+      versions = resolveVersionInputFromDefaultFile();
+    }
+  }
+  return versions;
+}
 
 // src/caches.ts
-var import_path = __toESM(require("path"));
-var core7 = __toESM(require_core());
-var cache3 = __toESM(require_cache2());
-var import_glob = __toESM(require_glob2());
+var import_node_path = __toESM(require("node:path"), 1);
+var import_node_process3 = __toESM(require("node:process"), 1);
+var core7 = __toESM(require_core(), 1);
+var cache3 = __toESM(require_cache2(), 1);
+var import_glob = __toESM(require_glob2(), 1);
 async function calculateCacheKeys(pythonVersion, cacheDependencyPath) {
   const hash = await (0, import_glob.hashFiles)(cacheDependencyPath);
-  const primaryKey = `setup-pdm-${process.env["RUNNER_OS"]}-python-${pythonVersion}-${hash}`;
-  const restoreKey = `setup-pdm-${process.env["RUNNER_OS"]}-python-${pythonVersion}-`;
+  const primaryKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-python-${pythonVersion}-${hash}`;
+  const restoreKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-python-${pythonVersion}-`;
   return { primaryKey, restoreKeys: [restoreKey] };
 }
 async function cacheDependencies(pdmBin, pythonVersion) {
@@ -90962,7 +91057,7 @@ async function cacheDependencies(pdmBin, pythonVersion) {
   const { primaryKey, restoreKeys } = await calculateCacheKeys(pythonVersion, cacheDependencyPath);
   if (primaryKey.endsWith("-")) {
     throw new Error(
-      `No file in ${process.cwd()} matched to [${cacheDependencyPath.split("\n").join(",")}], make sure you have checked out the target repository`
+      `No file in ${import_node_process3.default.cwd()} matched to [${cacheDependencyPath.split("\n").join(",")}], make sure you have checked out the target repository`
     );
   }
   const cachePath = await getCacheDirectories(pdmBin);
@@ -90973,8 +91068,8 @@ async function cacheDependencies(pdmBin, pythonVersion) {
 }
 async function getCacheDirectories(pdmBin) {
   const paths = [
-    import_path.default.join(process.cwd(), ".venv"),
-    import_path.default.join(process.cwd(), "__pypackages__")
+    import_node_path.default.join(import_node_process3.default.cwd(), ".venv"),
+    import_node_path.default.join(import_node_process3.default.cwd(), "__pypackages__")
   ];
   paths.push(await getOutput(pdmBin, ["config", "cache_dir"]));
   paths.push(await getOutput(pdmBin, ["config", "venv.location"]));
@@ -90994,47 +91089,42 @@ function handleMatchResult(matchedKey, primaryKey) {
 var INSTALL_SCRIPT_URL = "https://pdm.fming.dev/install-pdm.py";
 function getPep582Path(installDir, pythonVersion) {
   const parsedVersion = (0, import_parse3.default)(pythonVersion);
-  if (IS_WINDOWS) {
-    return import_path2.default.resolve(installDir, "Lib/site-packages/pdm/pep582");
-  } else {
-    return import_path2.default.resolve(installDir, "lib", `python${parsedVersion.major}.${parsedVersion.minor}`, "site-packages/pdm/pep582");
-  }
+  if (IS_WINDOWS)
+    return import_node_path2.default.resolve(installDir, "Lib/site-packages/pdm/pep582");
+  else
+    return import_node_path2.default.resolve(installDir, "lib", `python${parsedVersion.major}.${parsedVersion.minor}`, "site-packages/pdm/pep582");
 }
 async function run() {
   const arch2 = core8.getInput("architecture") || os4.arch();
   const pdmVersion = core8.getInput("version");
-  const pythonVersion = core8.getInput("python-version");
+  const pythonVersion = resolveVersionInput()[0] || "3.x";
   const updateEnvironment = core8.getBooleanInput("update-python");
   const allowPythonPreReleases = core8.getBooleanInput("allow-python-prereleases");
   const cmdArgs = ["-"];
-  if (core8.getBooleanInput("prerelease")) {
+  if (core8.getBooleanInput("prerelease"))
     cmdArgs.push("--prerelease");
-  }
-  if (pdmVersion) {
+  if (pdmVersion)
     cmdArgs.push("--version", pdmVersion);
-  }
   cmdArgs.push("-o", "install-output.json");
   try {
     await (0, import_exec2.exec)(IS_WINDOWS ? "python" : "python3", cmdArgs, { input: await fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
     const installOutput = JSON.parse(await readFile("install-output.json"));
     core8.debug(`Install output: ${installOutput}`);
     core8.setOutput("pdm-version", installOutput.pdm_version);
-    core8.setOutput("pdm-bin", import_path2.default.join(installOutput.install_location, installOutput.pdm_bin));
-    core8.addPath(import_path2.default.dirname(installOutput.pdm_bin));
-    if (core8.getBooleanInput("enable-pep582")) {
+    core8.setOutput("pdm-bin", import_node_path2.default.join(installOutput.install_location, installOutput.pdm_bin));
+    core8.addPath(import_node_path2.default.dirname(installOutput.pdm_bin));
+    if (core8.getBooleanInput("enable-pep582"))
       core8.exportVariable("PYTHONPATH", getPep582Path(installOutput.install_location, installOutput.install_python_version));
-    }
     const installedPython = await findPythonVersion(pythonVersion, arch2, allowPythonPreReleases, updateEnvironment);
-    if (process.platform === "linux") {
+    if (import_node_process4.default.platform === "linux") {
       core8.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
     }
     core8.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`);
-    const matchersPath = import_path2.default.join(__dirname, "..", ".github");
-    core8.info(`##[add-matcher]${import_path2.default.join(matchersPath, "python.json")}`);
-    if (isCacheAvailable()) {
+    const matchersPath = import_node_path2.default.join(__dirname, "..", ".github");
+    core8.info(`##[add-matcher]${import_node_path2.default.join(matchersPath, "python.json")}`);
+    if (isCacheAvailable())
       await cacheDependencies(installOutput.pdm_bin, installedPython);
-    }
-    await import_fs4.promises.rm("install-output.json");
+    await import_node_fs2.promises.rm("install-output.json");
   } catch (error2) {
     core8.setFailed(error2.message);
   }

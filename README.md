@@ -13,12 +13,12 @@ Include the action in your workflow yaml:
 
 ```yaml
 steps:
-    - uses: actions/checkout@v3
-    - name: Setup PDM
-      uses: pdm-project/setup-pdm@v3
+  - uses: actions/checkout@v3
+  - name: Setup PDM
+    uses: pdm-project/setup-pdm@v3
     # You are now able to use PDM in your workflow
-    - name: Install dependencies
-      run: pdm install
+  - name: Install dependencies
+    run: pdm install
 ```
 
 You don't need `actions/setup-python` actually.
