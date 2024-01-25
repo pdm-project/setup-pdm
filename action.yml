@@ -1,18 +1,20 @@
 ---
-name: "Setup PDM"
-description: "Set up a specific version of PDM and uses a given Python version to work on"
-author: "Frost Ming"
+name: Setup PDM
+description: Set up a specific version of PDM and uses a given Python version to work on
+author: Frost Ming
 inputs:
   python-version:
-    description: "Version range or exact version of a Python version to use, using SemVer's version range syntax."
-    default: "3.x"
+    description: 'Version range or exact version of a Python version to use, using SemVer''s version range syntax.'
+    default: 3.x
     required: false
+  python-version-file:
+    description: 'File containing the Python version to use. Example: .python-version'
   architecture:
-    description: "The target architecture (x86, x64) of the Python interpreter."
+    description: 'The target architecture (x86, x64) of the Python interpreter.'
     required: false
   allow-python-prereleases:
-    description: "Allow prerelease versions of Python to be installed."
-    default: "false"
+    description: Allow prerelease versions of Python to be installed.
+    default: 'false'
     required: false
   token:
     description: Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user.
@@ -23,39 +25,39 @@ inputs:
     required: false
   prerelease:
     description: Allow prerelease versions to be installed
-    default: "false"
+    default: 'false'
     required: false
   enable-pep582:
-    description: "Enable PEP 582 package loading globally."
-    default: "false"
+    description: Enable PEP 582 package loading globally.
+    default: 'false'
     required: false
   cache:
-    description: "Cache PDM installation."
-    default: "false"
+    description: Cache PDM installation.
+    default: 'false'
     required: false
   cache-dependency-path:
-    description: "The dependency file(s) to cache."
-    default: "pdm.lock"
+    description: The dependency file(s) to cache.
+    default: pdm.lock
     required: false
   update-python:
-    description: "Whether to update the environment with the requested Python"
-    default: "true"
+    description: Whether to update the environment with the requested Python
+    default: 'true'
 outputs:
   python-version:
-    description: "The installed Python or PyPy version. Useful when given a version range as input."
+    description: The installed Python or PyPy version. Useful when given a version range as input.
   python-path:
-    description: "The absolute path to the Python or PyPy executable."
+    description: The absolute path to the Python or PyPy executable.
   pdm-version:
-    description: "The installed PDM version."
+    description: The installed PDM version.
   pdm-bin:
-    description: "The absolute path to the PDM executable."
+    description: The absolute path to the PDM executable.
   cache-hit:
-    description: "Whether or not there was a cache hit."
+    description: Whether or not there was a cache hit.
 runs:
-  using: "node20"
-  main: "dist/setup-pdm.js"
-  post: "dist/cache-save.js"
+  using: node20
+  main: dist/setup-pdm.js
+  post: dist/cache-save.js
   post-if: success()
 branding:
-  icon: "code"
-  color: "green"
+  icon: code
+  color: green
