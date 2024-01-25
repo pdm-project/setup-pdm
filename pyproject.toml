@@ -1,28 +1,20 @@
 [project]
+name = "setup-pdm"
+version = "0.0.0"
 authors = [
     {name = "Frost Ming", email = "mianghong@gmail.com"},
 ]
-include = "test.py"
-requires-python = ">=3.7"
-dynamic = ["classifiers"]
+requires-python = ">=3.8"
 license = {text = "MIT"}
 
-[project.urls]
-homepage = ""
-
-[tool]
 [tool.pdm]
+distribution = false
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "chardet; python_version=='3.7'",
     "urllib3; python_version=='3.8'",
     "certifi; python_version=='3.9'",
     "pytz; python_version=='3.10'",
     "setuptools; python_version=='3.11'",
     "six; python_version=='3.12'",
 ]
-
-[build-system]
-requires = ["pdm-pep517"]
-build-backend = "pdm.pep517.api"
