@@ -4,8 +4,9 @@ A GitHub Action that installs pdm properly for all Python versions
 
 ## Why do I need this action?
 
-- `actions/setup-python` [doesn't support](https://github.com/actions/setup-python/issues/587#issuecomment-1455797407) caching with PDM.
-- While PDM supports Python 3.7 or lower, it needs to be run by Python 3.8 or higher, so if you are on a very old Python version you don't need to worry about the Python setup.
+Nowadays the main reason to use this action is that `actions/setup-python` [doesn't support](https://github.com/actions/setup-python/issues/587#issuecomment-1455797407) caching for PDM out of the box while `setup-pdm` does.
+
+Historically, this action made it easier to use PDM in repos where the Python version in use was older than the Python version required by PDM. PDM requires >=3.8 but works for projects using older versions.
 
 ## Usage
 
