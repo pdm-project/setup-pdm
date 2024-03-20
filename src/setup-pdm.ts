@@ -67,6 +67,9 @@ async function run(): Promise<void> {
   catch (error: any) {
     core.setFailed(error.message)
   }
+  // Explicit process.exit() to not wait for hanging promises,
+  // see https://github.com/actions/setup-node/issues/878
+  process.exit()
 }
 
 run()
