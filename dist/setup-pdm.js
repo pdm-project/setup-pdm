@@ -91128,7 +91128,6 @@ async function run() {
   } catch (error2) {
     core8.setFailed(error2.message);
   }
-  import_node_process4.default.exit();
 }
 run();
 /*! Bundled license information:

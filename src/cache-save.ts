@@ -12,6 +12,9 @@ async function run() {
     const err = error as Error
     core.setFailed(err.message)
   }
+  // Explicit process.exit() to not wait for hanging promises,
+  // see https://github.com/actions/setup-node/issues/878
+  process.exit()
 }
 
 async function saveCache() {

@@ -74843,6 +74843,7 @@ async function run() {
     const err = error;
     core.setFailed(err.message);
   }
+  process.exit();
 }
 async function saveCache2() {
   const cachePaths = JSON.parse(core.getState("cache-paths"));
