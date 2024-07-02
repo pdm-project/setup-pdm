@@ -7,8 +7,8 @@ import { getOutput } from './utils'
 
 async function calculateCacheKeys(pythonVersion: string, cacheDependencyPath: string): Promise<{ primaryKey: string, restoreKeys: string[] }> {
   const hash = await hashFiles(cacheDependencyPath)
-  const primaryKey = `setup-pdm-${process.env.RUNNER_OS}-python-${pythonVersion}-${hash}`
-  const restoreKey = `setup-pdm-${process.env.RUNNER_OS}-python-${pythonVersion}-`
+  const primaryKey = `setup-pdm-${process.env.RUNNER_OS}-${process.env.RUNNER_ARCH}-python-${pythonVersion}-${hash}`
+  const restoreKey = `setup-pdm-${process.env.RUNNER_OS}-${process.env.RUNNER_ARCH}-python-${pythonVersion}-`
   return { primaryKey, restoreKeys: [restoreKey] }
 }
 
