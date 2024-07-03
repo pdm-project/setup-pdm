@@ -91048,8 +91048,8 @@ var cache3 = __toESM(require_cache2());
 var import_glob = __toESM(require_glob2());
 async function calculateCacheKeys(pythonVersion, cacheDependencyPath) {
   const hash = await (0, import_glob.hashFiles)(cacheDependencyPath);
-  const primaryKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-python-${pythonVersion}-${hash}`;
-  const restoreKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-python-${pythonVersion}-`;
+  const primaryKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-${import_node_process3.default.env.RUNNER_ARCH}-python-${pythonVersion}-${hash}`;
+  const restoreKey = `setup-pdm-${import_node_process3.default.env.RUNNER_OS}-${import_node_process3.default.env.RUNNER_ARCH}-python-${pythonVersion}-`;
   return { primaryKey, restoreKeys: [restoreKey] };
 }
 async function cacheDependencies(pdmBin, pythonVersion) {
