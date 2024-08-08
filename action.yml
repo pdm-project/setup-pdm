@@ -37,6 +37,12 @@ inputs:
     description: The dependency file(s) to cache.
     default: pdm.lock
     required: false
+  cache-restore-exact-match:
+    description: >
+      Restore cache ONLY on exact match with the primary key.
+      Note: Post-installation cache will still be saved if cache is 'true'.
+    default: 'false'
+    required: false
   update-python:
     description: Whether to update the environment with the requested Python
     default: 'true'

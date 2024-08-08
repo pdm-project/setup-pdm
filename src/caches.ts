@@ -9,6 +9,12 @@ async function calculateCacheKeys(pythonVersion: string, cacheDependencyPath: st
   const hash = await hashFiles(cacheDependencyPath)
   const primaryKey = `setup-pdm-${process.env.RUNNER_OS}-${process.env.RUNNER_ARCH}-python-${pythonVersion}-${hash}`
   const restoreKey = `setup-pdm-${process.env.RUNNER_OS}-${process.env.RUNNER_ARCH}-python-${pythonVersion}-`
+
+  const restoreExactMatch = core.getBooleanInput('cache-restore-exact-match')
+  if (restoreExactMatch) {
+    return { primaryKey, restoreKeys: [] }
+  }
+
   return { primaryKey, restoreKeys: [restoreKey] }
 }
 
