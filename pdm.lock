@@ -3,9 +3,12 @@
 
 [metadata]
 groups = ["default", "dev"]
-strategy = ["cross_platform", "inherit_metadata"]
-lock_version = "4.4.1"
-content_hash = "sha256:eb061d39de14e94263f38ecb20461dfb8a9fc7d73a3f9ede85ded6085701598a"
+strategy = ["inherit_metadata"]
+lock_version = "4.5.0"
+content_hash = "sha256:c7bc8c77abe4c890545158d7bfdd811dce4a2658fa8ab856aa152f869973efab"
+
+[[metadata.targets]]
+requires_python = ">=3.9"
 
 [[package]]
 name = "certifi"
@@ -60,7 +63,7 @@ version = "2.1.0"
 requires_python = ">=3.8"
 summary = "HTTP library with thread-safe connection pooling, file post, and more."
 groups = ["dev"]
-marker = "python_version == \"3.8\""
+marker = "python_version == \"3.13\""
 files = [
     {file = "urllib3-2.1.0-py3-none-any.whl", hash = "sha256:55901e917a5896a349ff771be919f8bd99aff50b79fe58fec595eb37bbc56bb3"},
     {file = "urllib3-2.1.0.tar.gz", hash = "sha256:df7aa8afb0148fa78488e7899b2c59b5f4ffcfa82e6c54ccb9dd37c1d7b52d54"},
