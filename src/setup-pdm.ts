@@ -41,22 +41,22 @@ async function run(): Promise<void> {
   cmdArgs.push('-o', 'install-output.json')
   // Use the default python version installed with the runner
   try {
-    await exec(IS_WINDOWS ? 'python' : 'python3', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
-    const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'))
-    core.debug(`Install output: ${installOutput}`)
-    core.setOutput('pdm-version', installOutput.pdm_version)
-    core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
-    core.addPath(path.dirname(installOutput.pdm_bin))
-    if (core.getBooleanInput('enable-pep582'))
-      core.exportVariable('PYTHONPATH', getPep582Path(installOutput.install_location, installOutput.install_python_version))
-
     const installedPython = await utils.findPythonVersion(pythonVersion, arch, allowPythonPreReleases, updateEnvironment)
 
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
       core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1')
     }
+    await exec(IS_WINDOWS ? 'python' : 'python3', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
+    const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'))
+    core.debug(`Install output: ${installOutput}`)
     core.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`)
+    core.setOutput('pdm-version', installOutput.pdm_version)
+    core.setOutput('pdm-bin', path.join(installOutput.install_location, installOutput.pdm_bin))
+    core.addPath(path.dirname(installOutput.pdm_bin))
+    if (core.getBooleanInput('enable-pep582'))
+      core.exportVariable('PYTHONPATH', getPep582Path(installOutput.install_location, installOutput.install_python_version))
+
     const matchersPath = path.join(__dirname, '..', '.github')
     core.info(`##[add-matcher]${path.join(matchersPath, 'python.json')}`)
     if (utils.isCacheAvailable())

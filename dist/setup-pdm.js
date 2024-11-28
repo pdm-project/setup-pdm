@@ -84127,7 +84127,7 @@ var import_node_process4 = __toESM(require("node:process"));
 var core8 = __toESM(require_core());
 var import_exec2 = __toESM(require_exec());
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/utils.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/utils.ts
 var cache = __toESM(require_cache2());
 var core = __toESM(require_core());
 var import_fs = __toESM(require("fs"));
@@ -90391,12 +90391,12 @@ var defaults = {
 var got = create_default(defaults);
 var source_default2 = got;
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-python.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-python.ts
 var os2 = __toESM(require("os"));
 var path3 = __toESM(require("path"));
 var semver2 = __toESM(require_semver4());
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/install-python.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/install-python.ts
 var path2 = __toESM(require("path"));
 var core2 = __toESM(require_core());
 var tc = __toESM(require_tool_cache());
@@ -90485,7 +90485,7 @@ async function installCpythonFromRelease(release) {
   }
 }
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-python.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-python.ts
 var core3 = __toESM(require_core());
 var tc2 = __toESM(require_tool_cache());
 function binDir(installDir) {
@@ -90608,10 +90608,10 @@ function pythonVersionToSemantic(versionSpec, allowPreReleases) {
   return result;
 }
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-pypy.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-pypy.ts
 var path5 = __toESM(require("path"));
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/install-pypy.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/install-pypy.ts
 var os3 = __toESM(require("os"));
 var path4 = __toESM(require("path"));
 var core4 = __toESM(require_core());
@@ -90811,7 +90811,7 @@ function replaceX32toX86(architecture) {
   return architecture;
 }
 
-// node_modules/.pnpm/setup-python@https+++codeload.github.com+actions+setup-python+tar.gz+2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-pypy.ts
+// node_modules/.pnpm/github.com+actions+setup-python@2f078955e4d0f34cc7a8b0108b2eb7bbe154438e/node_modules/setup-python/src/find-pypy.ts
 var semver4 = __toESM(require_semver4());
 var core5 = __toESM(require_core());
 var tc4 = __toESM(require_tool_cache());
@@ -91111,19 +91111,19 @@ async function run() {
     cmdArgs.push("--version", pdmVersion);
   cmdArgs.push("-o", "install-output.json");
   try {
+    const installedPython = await findPythonVersion(pythonVersion, arch2, allowPythonPreReleases, updateEnvironment);
+    if (import_node_process4.default.platform === "linux") {
+      core8.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
+    }
     await (0, import_exec2.exec)(IS_WINDOWS ? "python" : "python3", cmdArgs, { input: await fetchUrlAsBuffer(INSTALL_SCRIPT_URL) });
     const installOutput = JSON.parse(await readFile("install-output.json"));
     core8.debug(`Install output: ${installOutput}`);
+    core8.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`);
     core8.setOutput("pdm-version", installOutput.pdm_version);
     core8.setOutput("pdm-bin", import_node_path2.default.join(installOutput.install_location, installOutput.pdm_bin));
     core8.addPath(import_node_path2.default.dirname(installOutput.pdm_bin));
     if (core8.getBooleanInput("enable-pep582"))
       core8.exportVariable("PYTHONPATH", getPep582Path(installOutput.install_location, installOutput.install_python_version));
-    const installedPython = await findPythonVersion(pythonVersion, arch2, allowPythonPreReleases, updateEnvironment);
-    if (import_node_process4.default.platform === "linux") {
-      core8.exportVariable("LD_PRELOAD", "/lib/x86_64-linux-gnu/libgcc_s.so.1");
-    }
-    core8.info(`Successfully setup ${installOutput.pdm_version} with Python ${installedPython}`);
     const matchersPath = import_node_path2.default.join(__dirname, "..", ".github");
     core8.info(`##[add-matcher]${import_node_path2.default.join(matchersPath, "python.json")}`);
     if (isCacheAvailable())
