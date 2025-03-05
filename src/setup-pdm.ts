@@ -45,7 +45,12 @@ async function run(): Promise<void> {
 
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803
-      core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1')
+      if (process.arch === 'x64') {
+        core.exportVariable('LD_PRELOAD', '/lib/x86_64-linux-gnu/libgcc_s.so.1')
+      }
+      else if (process.arch === 'arm64') {
+        core.exportVariable('LD_PRELOAD', '/lib/aarch64-linux-gnu/libgcc_s.so.1')
+      }
     }
     await exec(IS_WINDOWS ? 'python' : 'python3', cmdArgs, { input: await utils.fetchUrlAsBuffer(INSTALL_SCRIPT_URL) })
     const installOutput: InstallOutput = JSON.parse(await utils.readFile('install-output.json'))

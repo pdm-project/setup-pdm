@@ -32,7 +32,7 @@ This action supports the following inputs:
 | -------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | `python-version`           | Not specified         | Version range or exact version of a Python version to use, using SemVer's version range syntax.                                      |
 | `python-version-file`      | `pyproject.toml`      | File containing the Python version to use. Example: .`python-version`                                                                |
-| `architecture`             | `x64`                 | The target architecture (x86, x64) of the Python interpreter.                                                                        |
+| `architecture`             | `x64`                 | The target architecture (x86, x64, arm64) of the Python interpreter.                                                                        |
 | `allow-python-prereleases` | `false`               | Allow prerelease versions of Python to be installed.                                                                                 |
 | `token`                    | `${{ github.token }}` | Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user. |
 | `version`                  | Not specified         | The version of PDM to install, or 'head' to install from the main branch.                                                            |
