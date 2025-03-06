@@ -8,7 +8,7 @@ inputs:
   python-version-file:
     description: 'File containing the Python version to use. Example: .python-version'
   architecture:
-    description: 'The target architecture (x86, x64) of the Python interpreter.'
+    description: 'The target architecture (x86, x64, arm64) of the Python interpreter.'
     required: false
   allow-python-prereleases:
     description: Allow prerelease versions of Python to be installed.
