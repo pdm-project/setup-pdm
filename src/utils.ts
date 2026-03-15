@@ -47,6 +47,7 @@ export async function findPythonVersion(version: string, architecture: string, a
       updateEnvironment,
       false,
       allowPreReleases,
+      false
     )
     pythonVersion = installed.version
     core.info(`Successfully set up ${installed.impl} (${pythonVersion})`)
