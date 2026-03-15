@@ -31,6 +31,7 @@ async function run(): Promise<void> {
   const pythonVersion = utils.resolveVersionInput()[0] || '3.x'
   const updateEnvironment = core.getBooleanInput('update-python')
   const allowPythonPreReleases = core.getBooleanInput('allow-python-prereleases')
+  const freethreaded = core.getBooleanInput('freethreaded')
   const cmdArgs = ['-']
   if (core.getBooleanInput('prerelease'))
     cmdArgs.push('--prerelease')
@@ -41,7 +42,7 @@ async function run(): Promise<void> {
   cmdArgs.push('-o', 'install-output.json')
   // Use the default python version installed with the runner
   try {
-    const installedPython = await utils.findPythonVersion(pythonVersion, arch, allowPythonPreReleases, updateEnvironment)
+    const installedPython = await utils.findPythonVersion(pythonVersion, arch, allowPythonPreReleases, freethreaded, updateEnvironment)
 
     if (process.platform === 'linux') {
       // See https://github.com/actions/virtual-environments/issues/2803

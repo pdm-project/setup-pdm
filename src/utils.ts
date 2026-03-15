@@ -24,7 +24,7 @@ export async function fetchUrlAsBuffer(url: string): Promise<Buffer> {
   return Buffer.from(response.body)
 }
 
-export async function findPythonVersion(version: string, architecture: string, allowPreReleases: boolean, updateEnvironment: boolean = true): Promise<string> {
+export async function findPythonVersion(version: string, architecture: string, allowPreReleases: boolean, freethreaded: boolean, updateEnvironment: boolean = true): Promise<string> {
   let pythonVersion = ''
   if (isPyPyVersion(version)) {
     const installed = await findPyPyVersion(
@@ -47,7 +47,7 @@ export async function findPythonVersion(version: string, architecture: string, a
       updateEnvironment,
       false,
       allowPreReleases,
-      false
+      freethreaded
     )
     pythonVersion = installed.version
     core.info(`Successfully set up ${installed.impl} (${pythonVersion})`)

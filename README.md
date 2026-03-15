@@ -34,6 +34,7 @@ This action supports the following inputs:
 | `python-version-file`      | `pyproject.toml`      | File containing the Python version to use. Example: .`python-version`                                                                |
 | `architecture`             | `x64`                 | The target architecture (x86, x64, arm64) of the Python interpreter.                                                                        |
 | `allow-python-prereleases` | `false`               | Allow prerelease versions of Python to be installed.                                                                                 |
+| `freethreaded`             | `false`               | Use the freethreaded version of Python.                                                                                              |
 | `token`                    | `${{ github.token }}` | Used to pull python distributions from actions/python-versions. Since there's a default, this is typically not supplied by the user. |
 | `version`                  | Not specified         | The version of PDM to install, or 'head' to install from the main branch.                                                            |
 | `prerelease`               | `false`               | Allow prerelease versions of PDM to be installed                                                                                     |
