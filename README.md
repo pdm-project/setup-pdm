@@ -41,6 +41,7 @@ This action supports the following inputs:
 | `enable-pep582`            | `false`               | Enable PEP 582 package loading globally.                                                                                             |
 | `cache`                    | `false`               | Cache PDM installation.                                                                                                              |
 | `cache-dependency-path`    | `pdm.lock`            | The dependency file(s) to cache.                                                                                                     |
+| `cache-restore-exact-match` | `false`             | Restore cache ONLY on exact match with the primary key. Note: Post-installation cache will still be saved if cache is 'true'.        |
 | `update-python`            | `true`                | Whether to update the environment with the requested Python                                                                          |
 
 ## Action Outputs
@@ -53,6 +54,7 @@ This action also exposes the following outputs:
 | `python-path`    | The absolute path to the Python or PyPy executable.                               |
 | `pdm-version`    | The installed PDM version.                                                        |
 | `pdm-bin`        | The absolute path to the PDM executable.                                          |
+| `cache-hit`      | Whether or not there was a cache hit (`true` only on an exact primary key match). |
 
 ## Caches
 
